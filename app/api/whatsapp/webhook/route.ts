@@ -1,5 +1,6 @@
 import OpenAI from "openai";
 import { createClient } from "@supabase/supabase-js";
+import { sendHandoffEmail } from "@/lib/email";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -7,6 +8,14 @@ const supabase = createClient(
   process.env.SUPABASE_URL || "",
   process.env.SUPABASE_SERVICE_ROLE_KEY || ""
 );
+
+function wantsHuman(text: string) {
+  return /(human|host|owner|agent|call)/i.test(text);
+}
+
+function isFallbackReply(reply: string) {
+  return /forward|don’t have|do not have/i.test(reply);
+}
 
 function escapeXml(str: string) {
   return str
@@ -22,7 +31,10 @@ function twimlMessage(text: string) {
 <Response>
   <Message>${escapeXml(text)}</Message>
 </Response>`;
-  return new Response(xml, { status: 200, headers: { "Content-Type": "text/xml" } });
+  return new Response(xml, {
+    status: 200,
+    headers: { "Content-Type": "text/xml" },
+  });
 }
 
 function parsePropertyCode(input: string) {
@@ -54,10 +66,10 @@ export async function POST(request: Request) {
 
   const { code, message: guestMessage } = parsed;
 
-  // Load property
+  // Load property (include handoff_email)
   const { data: property, error: propErr } = await supabase
     .from("properties")
-    .select("id,name,knowledge_text,languages")
+    .select("id,name,knowledge_text,languages,handoff_email")
     .eq("code", code)
     .maybeSingle();
 
@@ -104,7 +116,29 @@ ${property.knowledge_text}
     // Keep fallback reply
   }
 
-  // Log message+reply
+  // ✅ STEP 5: Human handoff
+  const shouldHandoff = wantsHuman(guestMessage) || isFallbackReply(reply);
+
+  if (shouldHandoff) {
+    // Always keep WhatsApp response safe + consistent
+    reply = "I’ll forward your question to the host.";
+
+    // Notify owner by email if configured
+    if (property.handoff_email) {
+      try {
+        await sendHandoffEmail({
+          to: property.handoff_email,
+          propertyName: property.name,
+          fromNumber: from,
+          guestMessage,
+        });
+      } catch (e) {
+        console.error("Handoff email error:", e);
+      }
+    }
+  }
+
+  // Log message+reply (log the final reply after handoff logic)
   const { error: logErr } = await supabase.from("messages").insert({
     property_id: property.id,
     from_number: from,
