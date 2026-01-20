@@ -1,6 +1,12 @@
 import OpenAI from "openai";
+import { createClient } from "@supabase/supabase-js";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+
+const supabase = createClient(
+  process.env.SUPABASE_URL || "",
+  process.env.SUPABASE_SERVICE_ROLE_KEY || ""
+);
 
 function escapeXml(str: string) {
   return str
@@ -11,65 +17,107 @@ function escapeXml(str: string) {
     .replace(/'/g, "&apos;");
 }
 
+function twimlMessage(text: string) {
+  const xml = `<?xml version="1.0" encoding="UTF-8"?>
+<Response>
+  <Message>${escapeXml(text)}</Message>
+</Response>`;
+  return new Response(xml, { status: 200, headers: { "Content-Type": "text/xml" } });
+}
+
+function parsePropertyCode(input: string) {
+  // Expected: CODE: message
+  const m = input.match(/^\s*([A-Za-z0-9_-]{3,20})\s*:\s*([\s\S]+)$/);
+  if (!m) return null;
+  return { code: m[1].toUpperCase(), message: m[2].trim() };
+}
+
 export async function POST(request: Request) {
-  if (!process.env.OPENAI_API_KEY) {
-    const twiml = `<?xml version="1.0" encoding="UTF-8"?><Response><Message>Server is missing OPENAI_API_KEY.</Message></Response>`;
-    return new Response(twiml, { status: 200, headers: { "Content-Type": "text/xml" } });
+  if (!process.env.OPENAI_API_KEY) return twimlMessage("Missing OPENAI_API_KEY.");
+  if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
+    return twimlMessage("Missing Supabase env vars.");
   }
 
-  // Twilio sends form-encoded data
   const form = await request.formData();
-  const userMessage = (form.get("Body") as string) || "";
+  const rawBody = ((form.get("Body") as string) || "").trim();
   const from = (form.get("From") as string) || "";
+  const to = (form.get("To") as string) || "";
 
-  // Basic logging so you can see it in your terminal
-  console.log("Twilio incoming from:", from);
-  console.log("Twilio message:", userMessage);
+  if (!rawBody) return twimlMessage("Please send a message.");
 
-  const propertyInfo = `
-You are the WhatsApp assistant for "Villa Ana" in Croatia.
+  const parsed = parsePropertyCode(rawBody);
+  if (!parsed) {
+    return twimlMessage(
+      "Please start your message with your property code, e.g. ANA123: Do you have parking?"
+    );
+  }
 
-Facts:
-- Check-in: after 15:00
-- Check-out: until 10:00
-- Parking: free, in front of the house
-- Pets: small pets allowed
-- Wi-Fi: VillaAna123
+  const { code, message: guestMessage } = parsed;
 
-Rules:
-- Answer ONLY using these facts.
-- If unknown, say you will forward to the host.
-- Reply in the same language as the guest.
-- Keep replies short.
-`;
+  // Load property
+  const { data: property, error: propErr } = await supabase
+    .from("properties")
+    .select("id,name,knowledge_text,languages")
+    .eq("code", code)
+    .maybeSingle();
 
-  let reply = "I’ll forward this to the host.";
+  if (propErr) {
+    console.error("Supabase property lookup error:", propErr);
+    return twimlMessage("Server error. Please try again.");
+  }
 
-  if (userMessage.trim().length > 0) {
+  if (!property) {
+    return twimlMessage(`Unknown property code "${code}".`);
+  }
+
+  // Create safe system prompt
+  const systemPrompt = `
+You are a WhatsApp assistant for a Croatian tourism property.
+
+Property name: ${property.name}
+
+Use ONLY the info below. If the guest asks something not covered, say:
+"I don't have that information. I'll forward your question to the host."
+
+Reply in the same language as the guest.
+Keep replies short and helpful.
+
+PROPERTY INFO:
+${property.knowledge_text}
+`.trim();
+
+  // Generate reply
+  let reply = "I don't have that information. I'll forward your question to the host.";
+
+  try {
     const completion = await openai.chat.completions.create({
       model: "gpt-4o-mini",
       messages: [
-        { role: "system", content: propertyInfo.trim() },
-        { role: "user", content: userMessage },
+        { role: "system", content: systemPrompt },
+        { role: "user", content: guestMessage },
       ],
     });
 
     reply = completion.choices[0]?.message?.content?.trim() || reply;
+  } catch (e) {
+    console.error("OpenAI error:", e);
+    // Keep fallback reply
   }
 
-  // Twilio requires TwiML XML
-  const twiml = `<?xml version="1.0" encoding="UTF-8"?>
-<Response>
-  <Message>${escapeXml(reply)}</Message>
-</Response>`;
-
-  return new Response(twiml, {
-    status: 200,
-    headers: { "Content-Type": "text/xml" },
+  // Log message+reply
+  const { error: logErr } = await supabase.from("messages").insert({
+    property_id: property.id,
+    from_number: from,
+    to_number: to,
+    guest_message: guestMessage,
+    bot_reply: reply,
   });
+
+  if (logErr) console.error("Supabase log insert error:", logErr);
+
+  return twimlMessage(reply);
 }
 
-// Optional: Twilio doesn't need GET, but harmless.
 export async function GET() {
   return new Response("OK", { status: 200 });
 }
