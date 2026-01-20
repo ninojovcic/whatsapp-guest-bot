@@ -1,5 +1,10 @@
-export default function Landing({ params }: { params: { locale: "hr" | "en" } }) {
-  const isHR = params.locale === "hr";
+export default async function Landing({
+  params,
+}: {
+  params: Promise<{ locale: string }>;
+}) {
+  const { locale } = await params; // ✅ unwrap the Promise
+  const isHR = locale === "hr";
 
   const copy = isHR
     ? {
@@ -31,10 +36,27 @@ export default function Landing({ params }: { params: { locale: "hr" | "en" } })
       </div>
 
       <div style={{ display: "flex", gap: 12 }}>
-        <a href={`/${params.locale}/signup`} style={{ padding: "12px 16px", border: "1px solid #111", borderRadius: 10, textDecoration: "none" }}>
+        <a
+          href={`/${locale}/signup`}
+          style={{
+            padding: "12px 16px",
+            border: "1px solid #111",
+            borderRadius: 10,
+            textDecoration: "none",
+          }}
+        >
           {copy.cta1}
         </a>
-        <a href={`/${params.locale}/pricing`} style={{ padding: "12px 16px", border: "1px solid #ddd", borderRadius: 10, textDecoration: "none" }}>
+
+        <a
+          href={`/${locale}/pricing`}
+          style={{
+            padding: "12px 16px",
+            border: "1px solid #ddd",
+            borderRadius: 10,
+            textDecoration: "none",
+          }}
+        >
           {copy.cta2}
         </a>
       </div>

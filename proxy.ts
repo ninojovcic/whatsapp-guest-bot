@@ -3,7 +3,7 @@ import type { NextRequest } from "next/server";
 
 const locales = ["hr", "en"];
 
-export function middleware(req: NextRequest) {
+export function proxy(req: NextRequest) {
   const { pathname } = req.nextUrl;
 
   // Ignore next internals

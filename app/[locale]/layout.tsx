@@ -1,14 +1,16 @@
 import type { ReactNode } from "react";
 
-export default function LocaleLayout({
+export default async function LocaleLayout({
   children,
   params,
 }: {
   children: ReactNode;
-  params: { locale: "hr" | "en" };
+  params: Promise<{ locale: string }>;
 }) {
-  const { locale } = params;
-  const t = locale === "hr"
+  const { locale } = await params;
+  const isHr = locale === "hr";
+
+  const t = isHr
     ? {
         features: "Značajke",
         pricing: "Cijene",
@@ -24,29 +26,37 @@ export default function LocaleLayout({
         cta: "Get started free",
       };
 
-  const otherLocale = locale === "hr" ? "en" : "hr";
+  const otherLocale = isHr ? "en" : "hr";
 
   return (
     <html lang={locale}>
-      <body style={{ fontFamily: "system-ui", margin: 0 }}>
-        <header style={{ borderBottom: "1px solid #eee" }}>
-          <nav style={{ maxWidth: 1000, margin: "0 auto", padding: 16, display: "flex", gap: 16, alignItems: "center" }}>
-            <a href={`/${locale}`} style={{ fontWeight: 700, textDecoration: "none", color: "#111" }}>
+      <body className="min-h-screen font-sans">
+        <header className="border-b">
+          <nav className="mx-auto flex max-w-5xl items-center gap-4 p-4">
+            <a href={`/${locale}`} className="font-bold">
               GuestBot
             </a>
 
-            <a href={`/${locale}/features`}>{t.features}</a>
-            <a href={`/${locale}/pricing`}>{t.pricing}</a>
-            <a href={`/${locale}/contact`}>{t.contact}</a>
+            <a href={`/${locale}/features`} className="text-sm opacity-80 hover:opacity-100">
+              {t.features}
+            </a>
+            <a href={`/${locale}/pricing`} className="text-sm opacity-80 hover:opacity-100">
+              {t.pricing}
+            </a>
+            <a href={`/${locale}/contact`} className="text-sm opacity-80 hover:opacity-100">
+              {t.contact}
+            </a>
 
-            <div style={{ marginLeft: "auto", display: "flex", gap: 12, alignItems: "center" }}>
-              <a href={`/${otherLocale}`} style={{ opacity: 0.8 }}>
+            <div className="ml-auto flex items-center gap-3">
+              <a href={`/${otherLocale}`} className="text-sm opacity-70 hover:opacity-100">
                 {otherLocale.toUpperCase()}
               </a>
-              <a href={`/${locale}/login`}>{t.login}</a>
+              <a href={`/${locale}/login`} className="text-sm opacity-80 hover:opacity-100">
+                {t.login}
+              </a>
               <a
                 href={`/${locale}/signup`}
-                style={{ padding: "10px 14px", border: "1px solid #111", borderRadius: 10, textDecoration: "none" }}
+                className="rounded-xl border px-3 py-2 text-sm font-medium"
               >
                 {t.cta}
               </a>
@@ -54,12 +64,10 @@ export default function LocaleLayout({
           </nav>
         </header>
 
-        <main style={{ maxWidth: 1000, margin: "0 auto", padding: 24 }}>
-          {children}
-        </main>
+        <main className="mx-auto max-w-5xl p-6">{children}</main>
 
-        <footer style={{ borderTop: "1px solid #eee", marginTop: 40 }}>
-          <div style={{ maxWidth: 1000, margin: "0 auto", padding: 16, opacity: 0.7 }}>
+        <footer className="mt-10 border-t">
+          <div className="mx-auto max-w-5xl p-4 text-sm opacity-70">
             © {new Date().getFullYear()} GuestBot
           </div>
         </footer>
