@@ -8,20 +8,31 @@ export async function sendHandoffEmail(params: {
   fromNumber: string;
   guestMessage: string;
 }) {
-  if (!process.env.RESEND_API_KEY) return;
+  if (!process.env.RESEND_API_KEY) {
+    console.log("RESEND_API_KEY missing, not sending email");
+    return;
+  }
 
-  const { to, propertyName, fromNumber, guestMessage } = params;
+  try {
+    const { to, propertyName, fromNumber, guestMessage } = params;
 
-  await resend.emails.send({
-    from: "WhatsApp Bot <onboarding@resend.dev>",
-    to,
-    subject: `Guest question for ${propertyName}`,
-    html: `
-      <p><strong>Property:</strong> ${propertyName}</p>
-      <p><strong>Guest number:</strong> ${fromNumber}</p>
-      <p><strong>Message:</strong></p>
-      <blockquote>${guestMessage}</blockquote>
-      <p>Reply to the guest directly in WhatsApp.</p>
-    `,
-  });
+    console.log("Sending handoff email to:", to);
+
+    await resend.emails.send({
+      from: "WhatsApp Bot <onboarding@resend.dev>",
+      to,
+      subject: `Guest question for ${propertyName}`,
+      html: `
+        <p><strong>Property:</strong> ${propertyName}</p>
+        <p><strong>Guest number:</strong> ${fromNumber}</p>
+        <p><strong>Message:</strong></p>
+        <blockquote>${guestMessage}</blockquote>
+      `,
+    });
+
+    console.log("Handoff email sent OK");
+  } catch (e) {
+    console.error("Resend send failed:", e);
+    throw e;
+  }
 }

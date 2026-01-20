@@ -123,6 +123,14 @@ ${property.knowledge_text}
     // Always keep WhatsApp response safe + consistent
     reply = "I’ll forward your question to the host.";
 
+    console.log("HANDOFF TRIGGERED", {
+    code,
+    property: property.name,
+    toEmail: property.handoff_email,
+    hasResendKey: !!process.env.RESEND_API_KEY,
+    });
+
+    
     // Notify owner by email if configured
     if (property.handoff_email) {
       try {
