@@ -1,4 +1,6 @@
 import type { ReactNode } from "react";
+import Link from "next/link";
+import { Button } from "@/components/ui/button";
 
 export default async function LocaleLayout({
   children,
@@ -30,44 +32,68 @@ export default async function LocaleLayout({
 
   return (
     <html lang={locale}>
-      <body className="min-h-screen font-sans">
-        <header className="border-b">
-          <nav className="mx-auto flex max-w-5xl items-center gap-4 p-4">
-            <a href={`/${locale}`} className="font-bold">
+      <body className="min-h-screen bg-background font-sans text-foreground antialiased">
+        {/* HEADER */}
+        <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur">
+          <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-6">
+            {/* Logo */}
+            <Link
+              href={`/${locale}`}
+              className="text-lg font-semibold tracking-tight"
+            >
               GuestBot
-            </a>
+            </Link>
 
-            <a href={`/${locale}/features`} className="text-sm opacity-80 hover:opacity-100">
-              {t.features}
-            </a>
-            <a href={`/${locale}/pricing`} className="text-sm opacity-80 hover:opacity-100">
-              {t.pricing}
-            </a>
-            <a href={`/${locale}/contact`} className="text-sm opacity-80 hover:opacity-100">
-              {t.contact}
-            </a>
-
-            <div className="ml-auto flex items-center gap-3">
-              <a href={`/${otherLocale}`} className="text-sm opacity-70 hover:opacity-100">
-                {otherLocale.toUpperCase()}
-              </a>
-              <a href={`/${locale}/login`} className="text-sm opacity-80 hover:opacity-100">
-                {t.login}
-              </a>
-              <a
-                href={`/${locale}/signup`}
-                className="rounded-xl border px-3 py-2 text-sm font-medium"
+            {/* Nav links */}
+            <nav className="hidden items-center gap-6 md:flex">
+              <Link
+                href={`/${locale}/features`}
+                className="text-sm text-muted-foreground hover:text-foreground transition"
               >
-                {t.cta}
-              </a>
+                {t.features}
+              </Link>
+              <Link
+                href={`/${locale}/pricing`}
+                className="text-sm text-muted-foreground hover:text-foreground transition"
+              >
+                {t.pricing}
+              </Link>
+              <Link
+                href={`/${locale}/contact`}
+                className="text-sm text-muted-foreground hover:text-foreground transition"
+              >
+                {t.contact}
+              </Link>
+            </nav>
+
+            {/* Right actions */}
+            <div className="ml-auto flex items-center gap-2">
+              <Link
+                href={`/${otherLocale}`}
+                className="rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition"
+              >
+                {otherLocale.toUpperCase()}
+              </Link>
+
+              <Button asChild variant="ghost" size="sm">
+                <Link href={`/${locale}/login`}>{t.login}</Link>
+              </Button>
+
+              <Button asChild size="sm" className="rounded-xl">
+                <Link href={`/${locale}/signup`}>{t.cta}</Link>
+              </Button>
             </div>
-          </nav>
+          </div>
         </header>
 
-        <main className="mx-auto max-w-5xl p-6">{children}</main>
+        {/* MAIN */}
+        <main className="mx-auto w-full max-w-6xl px-6 py-10">
+          {children}
+        </main>
 
-        <footer className="mt-10 border-t">
-          <div className="mx-auto max-w-5xl p-4 text-sm opacity-70">
+        {/* FOOTER */}
+        <footer className="border-t">
+          <div className="mx-auto max-w-6xl px-6 py-6 text-sm text-muted-foreground">
             © {new Date().getFullYear()} GuestBot
           </div>
         </footer>
