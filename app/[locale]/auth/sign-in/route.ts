@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServer } from "@/lib/supabase/server";
+import { createSupabaseServer } from "@/src/lib/supabase/server";
 
 export async function POST(request: Request, { params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
@@ -7,7 +7,7 @@ export async function POST(request: Request, { params }: { params: Promise<{ loc
   const email = String(form.get("email") || "");
   const password = String(form.get("password") || "");
 
-  const supabase = createSupabaseServer();
+  const supabase = await createSupabaseServer();
   const { error } = await supabase.auth.signInWithPassword({ email, password });
 
   if (error) {
