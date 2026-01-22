@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { createSupabaseServer } from "@/src/lib/supabase/server";
+import { createSupabaseServer } from "@/lib/supabase/server";
 
 export async function POST(request: Request, { params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;

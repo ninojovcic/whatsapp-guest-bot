@@ -2,7 +2,7 @@ import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { createSupabaseServer } from "@/src/lib/supabase/server";
+import { createSupabaseServer } from "@/lib/supabase/server";
 
 export default async function SignupPage({
   params,

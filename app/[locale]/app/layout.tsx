@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { createSupabaseServer } from "@/src/lib/supabase/server";
+import { createSupabaseServer } from "@/lib/supabase/server";
 
 export default async function AppLayout({
   children,
