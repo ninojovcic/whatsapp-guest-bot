@@ -98,6 +98,14 @@ export default async function PropertyEditPage({
           <Button variant="outline" asChild>
             <Link href={`/${locale}/app/properties`}>Back</Link>
           </Button>
+
+          {/* NEW: Print guest instructions */}
+          <Button variant="outline" asChild>
+            <Link href={`/${locale}/app/properties/${property.id}/instructions`}>
+              Print guest instructions
+            </Link>
+          </Button>
+
           <form action={remove}>
             <Button variant="destructive" type="submit">
               Delete
