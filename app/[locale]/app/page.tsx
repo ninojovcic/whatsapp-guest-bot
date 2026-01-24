@@ -32,9 +32,13 @@ export default async function PropertiesPage({
   // --- USAGE BANNER DATA (billing_profiles + usage_monthly) ---
   const month = monthKeyUTC();
 
+  // 1) billing profile (ensure exists)
+  let plan = "free";
+  let limit = 100;
+
   const { data: profile, error: profileErr } = await supabase
     .from("billing_profiles")
-    .select("plan, monthly_limit")
+    .select("user_id, plan, monthly_limit")
     .eq("user_id", user.id)
     .maybeSingle();
 
@@ -42,6 +46,26 @@ export default async function PropertiesPage({
     console.error("billing_profiles fetch error:", profileErr);
   }
 
+  if (!profile) {
+    // create default profile if missing
+    const { data: created, error: createErr } = await supabase
+      .from("billing_profiles")
+      .insert({ user_id: user.id, plan: "free", monthly_limit: 100 })
+      .select("plan, monthly_limit")
+      .single();
+
+    if (createErr) {
+      console.error("billing_profiles create error:", createErr);
+    } else {
+      plan = created?.plan ?? plan;
+      limit = Number(created?.monthly_limit ?? limit);
+    }
+  } else {
+    plan = profile.plan ?? plan;
+    limit = Number(profile.monthly_limit ?? limit);
+  }
+
+  // 2) usage row
   const { data: usageRow, error: usageErr } = await supabase
     .from("usage_monthly")
     .select("used")
@@ -53,13 +77,9 @@ export default async function PropertiesPage({
     console.error("usage_monthly fetch error:", usageErr);
   }
 
-  const plan = profile?.plan ?? "free";
-  const limit = Number(profile?.monthly_limit ?? 100);
   const used = Number(usageRow?.used ?? 0);
 
-  const pct =
-    limit > 0 ? clamp(Math.round((used / limit) * 100), 0, 100) : 0;
-
+  const pct = limit > 0 ? clamp(Math.round((used / limit) * 100), 0, 100) : 0;
   const nearLimit = limit > 0 && used >= Math.floor(limit * 0.8);
   const atLimit = limit > 0 && used >= limit;
 
@@ -93,12 +113,18 @@ export default async function PropertiesPage({
 
       {/* ✅ Usage banner */}
       <Card>
-        <CardHeader className="flex-row items-center justify-between">
+        <CardHeader className="flex-row items-center justify-between gap-3">
           <CardTitle className="text-lg">Mjesečna potrošnja</CardTitle>
-          <Badge variant={atLimit ? "destructive" : nearLimit ? "secondary" : "outline"}>
-            Plan: {plan.toUpperCase()}
+
+          {/* Badge variant-safe (boja preko className) */}
+          <Badge
+            variant={nearLimit || atLimit ? "secondary" : "outline"}
+            className={atLimit ? "text-destructive" : undefined}
+          >
+            Plan: {String(plan).toUpperCase()}
           </Badge>
         </CardHeader>
+
         <CardContent className="space-y-3">
           <div className="flex flex-wrap items-center justify-between gap-2">
             <div className="text-sm">
@@ -111,7 +137,10 @@ export default async function PropertiesPage({
 
             <div className="flex gap-2">
               <Button variant="outline" asChild>
-                <Link href={`/${locale}/pricing`}>Nadogradi plan</Link>
+                <Link href={`/${locale}/billing`}>Plan & naplata</Link>
+              </Button>
+              <Button asChild>
+                <Link href={`/${locale}/pricing`}>Nadogradi</Link>
               </Button>
             </div>
           </div>
@@ -126,12 +155,12 @@ export default async function PropertiesPage({
 
           {atLimit ? (
             <div className="text-sm text-destructive">
-              Dosegnuo si limit. Bot će blokirati nove poruke dok ne krene novi mjesec ili
+              Dosegnuo si limit. Bot blokira nove poruke dok ne krene novi mjesec ili
               dok ne nadogradiš plan.
             </div>
           ) : nearLimit ? (
             <div className="text-sm text-muted-foreground">
-              Blizu si limita. Razmisli o nadogradnji kako ne bi gostovi dobili blokadu.
+              Blizu si limita. Razmisli o nadogradnji kako gosti ne bi dobili blokadu.
             </div>
           ) : (
             <div className="text-sm text-muted-foreground">
@@ -157,6 +186,7 @@ export default async function PropertiesPage({
             <div className="space-y-3">
               {rows.map((p) => {
                 const instructionsPath = `/${locale}/app/properties/${p.id}/instructions`;
+
                 return (
                   <div
                     key={p.id}
@@ -170,7 +200,7 @@ export default async function PropertiesPage({
                         </Badge>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        Kreirano: {new Date(p.created_at).toLocaleString()}
+                        Kreirano: {new Date(p.created_at).toLocaleString("hr-HR")}
                       </div>
                     </div>
 
