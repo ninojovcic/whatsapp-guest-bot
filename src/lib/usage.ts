@@ -4,6 +4,15 @@ function monthKey(d = new Date()) {
   return `${y}-${m}`;
 }
 
+export type BillingProfile = {
+  user_id: string;
+  plan: string;
+  monthly_limit: number;
+  stripe_customer_id?: string | null;
+  stripe_subscription_id?: string | null;
+  current_period_end?: string | null; // ISO string (optional, ako ga koristiš kasnije)
+};
+
 type LimitCheck = {
   allowed: boolean;
   used: number;
@@ -11,24 +20,35 @@ type LimitCheck = {
   plan: string;
 };
 
-export async function ensureBillingProfile(supabase: any, userId: string) {
-  const { data } = await supabase
+export async function ensureBillingProfile(
+  supabase: any,
+  userId: string
+): Promise<BillingProfile> {
+  const { data, error } = await supabase
     .from("billing_profiles")
-    .select("user_id, plan, monthly_limit")
+    .select("user_id, plan, monthly_limit, stripe_customer_id, stripe_subscription_id, current_period_end")
     .eq("user_id", userId)
-    .single();
-
-  if (data) return data;
-
-  // default free
-  const { data: created, error } = await supabase
-    .from("billing_profiles")
-    .insert({ user_id: userId, plan: "free", monthly_limit: 100 })
-    .select("user_id, plan, monthly_limit")
-    .single();
+    .maybeSingle();
 
   if (error) throw error;
-  return created;
+  if (data) return data as BillingProfile;
+
+  // default free
+  const { data: created, error: createErr } = await supabase
+    .from("billing_profiles")
+    .insert({
+      user_id: userId,
+      plan: "free",
+      monthly_limit: 100,
+      stripe_customer_id: null,
+      stripe_subscription_id: null,
+      current_period_end: null,
+    })
+    .select("user_id, plan, monthly_limit, stripe_customer_id, stripe_subscription_id, current_period_end")
+    .single();
+
+  if (createErr) throw createErr;
+  return created as BillingProfile;
 }
 
 export async function checkAndIncrementUsage(
@@ -40,29 +60,25 @@ export async function checkAndIncrementUsage(
 
   const profile = await ensureBillingProfile(supabase, userId);
 
-  // fetch current usage row
-  const { data: usageRow } = await supabase
+  const { data: usageRow, error: usageErr } = await supabase
     .from("usage_monthly")
     .select("used")
     .eq("user_id", userId)
     .eq("month", month)
-    .single();
+    .maybeSingle();
 
-  const used = usageRow?.used ?? 0;
-  const limit = profile.monthly_limit ?? 100;
+  if (usageErr) throw usageErr;
 
-  // ako bi prešlo limit -> blokiraj
+  const used = Number(usageRow?.used ?? 0);
+  const limit = Number(profile.monthly_limit ?? 100);
+
   if (used + incrementBy > limit) {
     return { allowed: false, used, limit, plan: profile.plan };
   }
 
-  // upsert: increment
   const { error } = await supabase
     .from("usage_monthly")
-    .upsert(
-      { user_id: userId, month, used: used + incrementBy },
-      { onConflict: "user_id,month" }
-    );
+    .upsert({ user_id: userId, month, used: used + incrementBy }, { onConflict: "user_id,month" });
 
   if (error) throw error;
 

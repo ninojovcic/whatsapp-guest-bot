@@ -87,7 +87,7 @@ export default async function LocaleLayout({
 
                   {/* Billing / Plan */}
                   <Button asChild variant="ghost" size="sm">
-                    <Link href={`/${loc}/app/billing`}>Plan / Billing</Link>
+                    <Link href={`/${loc}/billing`}>Plan / Billing</Link>
                   </Button>
 
                   {/* Logout */}
