@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 import Link from "next/link";
 import QRCode from "qrcode";
 import { redirect } from "next/navigation";
@@ -8,6 +10,16 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { PrintButton } from "@/components/print-button";
+
+function digitsOnlyPhone(e164: string) {
+  return (e164 || "").replace(/[^\d]/g, "");
+}
+
+function buildWaMeLink(phoneE164: string, text: string) {
+  const phone = digitsOnlyPhone(phoneE164);
+  const encoded = encodeURIComponent(text);
+  return `https://wa.me/${phone}?text=${encoded}`;
+}
 
 export default async function InstructionsPage({
   params,
@@ -29,12 +41,26 @@ export default async function InstructionsPage({
 
   if (!property) redirect(`/${locale}/app/properties`);
 
-  // Guest-facing link (public)
-  const baseUrl = process.env.NEXT_PUBLIC_SITE_URL || "";
-  const guestPath = `/g/${encodeURIComponent(property.code)}`;
-  const guestUrl = baseUrl ? `${baseUrl}${guestPath}` : guestPath;
+  const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
+  if (!phone) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-semibold">Guest instructions</h1>
+        <p className="text-sm text-muted-foreground">
+          Missing <span className="font-mono">NEXT_PUBLIC_WHATSAPP_NUMBER</span> env var.
+        </p>
+        <Button asChild>
+          <Link href={`/${locale}/app/properties/${id}`}>Back</Link>
+        </Button>
+      </div>
+    );
+  }
 
-  const qrDataUrl = await QRCode.toDataURL(guestUrl, {
+  // ✅ WhatsApp deep link (NOT /g/...)
+  const prefill = `${property.code}: Hi! I have a question about my stay.`;
+  const waLink = buildWaMeLink(phone, prefill);
+
+  const qrDataUrl = await QRCode.toDataURL(waLink, {
     width: 320,
     margin: 1,
     errorCorrectionLevel: "M",
@@ -55,7 +81,7 @@ export default async function InstructionsPage({
         <div>
           <h1 className="text-2xl font-semibold">Guest instructions</h1>
           <p className="text-sm text-muted-foreground">
-            Print this and place it in the property (QR opens a simple guest page).
+            Print this and place it in the property (QR opens WhatsApp with the code prefilled).
           </p>
         </div>
 
@@ -90,10 +116,10 @@ export default async function InstructionsPage({
             <div className="rounded-xl border p-4">
               <div className="text-sm font-medium">Scan to chat</div>
               <div className="mt-3 flex justify-center">
-                <img src={qrDataUrl} alt="Guest QR" className="h-auto w-[320px]" />
+                <img src={qrDataUrl} alt="WhatsApp QR" className="h-auto w-[320px]" />
               </div>
               <div className="mt-3 text-xs text-muted-foreground">
-                Opens the guest page with the correct property already selected.
+                Opens WhatsApp and pre-fills the message with your property code.
               </div>
             </div>
 
@@ -103,7 +129,7 @@ export default async function InstructionsPage({
                 <Separator className="my-3" />
                 <ol className="list-decimal space-y-2 pl-5 text-sm">
                   <li>Scan the QR code (or open the link below).</li>
-                  <li>Tap “Open WhatsApp”.</li>
+                  <li>Send the pre-filled message (it includes the property code).</li>
                   <li>Ask any question — you’ll get an instant reply.</li>
                 </ol>
               </div>
@@ -113,7 +139,7 @@ export default async function InstructionsPage({
                 <Separator className="my-3" />
                 <ol className="list-decimal space-y-2 pl-5 text-sm">
                   <li>Skeniraj QR kod (ili otvori link ispod).</li>
-                  <li>Klikni “Otvori WhatsApp”.</li>
+                  <li>Pošalji unaprijed pripremljenu poruku (sadrži kod objekta).</li>
                   <li>Postavi pitanje — dobit ćeš brz odgovor.</li>
                 </ol>
               </div>
@@ -123,7 +149,7 @@ export default async function InstructionsPage({
           <div className="rounded-xl border p-4">
             <div className="text-sm font-medium">Backup link (if QR doesn’t work)</div>
             <div className="mt-2 break-all rounded-md bg-muted p-3 font-mono text-xs">
-              {guestUrl}
+              {waLink}
             </div>
           </div>
         </CardContent>
