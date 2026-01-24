@@ -107,7 +107,7 @@ export default async function BillingPage({
                   Više poruka mjesečno, za većinu iznajmljivača.
                 </div>
               </div>
-              <UpgradeButton plan="pro" label="Nadogradi na PRO" />
+              <UpgradeButton plan="pro">Upgrade na PRO</UpgradeButton>
             </div>
           </div>
 
@@ -119,7 +119,9 @@ export default async function BillingPage({
                   Za više objekata i veći volumen poruka.
                 </div>
               </div>
-              <UpgradeButton plan="business" label="Nadogradi na BUSINESS" variant="outline" />
+              <UpgradeButton plan="business" variant="outline">
+                  Upgrade na BUSINESS
+              </UpgradeButton>
             </div>
           </div>
 
