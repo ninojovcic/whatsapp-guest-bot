@@ -11,7 +11,7 @@ const supabase = createClient(
 );
 
 function wantsHuman(text: string) {
-  return /(human|host|owner|agent|call)/i.test(text);
+  return /(human|host|owner|agent|call|čovjek|dom[ać]in|vlasnik|nazovi)/i.test(text);
 }
 
 // IMPORTANT: keep this narrow; otherwise handoff triggers too often
@@ -59,16 +59,6 @@ function parsePropertyCode(input: string) {
   return { code: m[1].toUpperCase(), message: m[2].trim() };
 }
 
-async function checkUsageFlexible(propertyId: string) {
-  // We don't know your exact function signature, so we support both:
-  // checkAndIncrementUsage(propertyId) OR checkAndIncrementUsage({ propertyId })
-  try {
-    return await (checkAndIncrementUsage as any)({ propertyId });
-  } catch {
-    return await (checkAndIncrementUsage as any)(propertyId);
-  }
-}
-
 export async function POST(request: Request) {
   if (!process.env.OPENAI_API_KEY) return twimlMessage("Missing OPENAI_API_KEY.");
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -92,16 +82,20 @@ export async function POST(request: Request) {
   const { code, message: guestMessage } = parsed;
   const guestLang = detectGuestLang(guestMessage);
 
-  // Load property (include handoff_email)
+  // Load property (include handoff_email + owner_id)
   const { data: property, error: propErr } = await supabase
     .from("properties")
-    .select("id,name,knowledge_text,languages,handoff_email")
+    .select("id,name,knowledge_text,languages,handoff_email,owner_id")
     .eq("code", code)
     .maybeSingle();
 
   if (propErr) {
     console.error("Supabase property lookup error:", propErr);
-    return twimlMessage(guestLang === "hr" ? "Greška na serveru. Pokušaj ponovno." : "Server error. Please try again.");
+    return twimlMessage(
+      guestLang === "hr"
+        ? "Greška na serveru. Pokušaj ponovno."
+        : "Server error. Please try again."
+    );
   }
 
   if (!property) {
@@ -112,42 +106,21 @@ export async function POST(request: Request) {
     );
   }
 
-  // ✅ USAGE LIMITS (check + block)
+  // ✅ USAGE LIMITS (check + increment) — BEFORE OpenAI
+  // NOTE: ovdje userId = owner_id (limit po vlasniku/hostu)
   try {
-    const usageRes: any = await checkUsageFlexible(property.id);
+    const usage = await checkAndIncrementUsage(supabase, property.owner_id, 1);
 
-    // support multiple shapes: { allowed }, { ok }, { blocked }, { limitExceeded }
-    const allowed =
-      usageRes?.allowed === true ||
-      usageRes?.ok === true ||
-      usageRes?.blocked === false ||
-      usageRes?.limitExceeded === false;
-
-    const blocked =
-      usageRes?.allowed === false ||
-      usageRes?.ok === false ||
-      usageRes?.blocked === true ||
-      usageRes?.limitExceeded === true;
-
-    if (blocked && !allowed) {
-      // If we have numbers, include them
-      const used = usageRes?.used ?? usageRes?.count ?? null;
-      const limit = usageRes?.limit ?? usageRes?.monthly_limit ?? null;
-
-      const baseMsg =
+    if (!usage.allowed) {
+      const msg =
         guestLang === "hr"
-          ? "Limit poruka za ovaj objekt je dosegnut za ovaj mjesec. Molimo kontaktirajte domaćina."
-          : "This property has reached its monthly message limit. Please contact the host.";
+          ? `Ovaj objekt je dosegao mjesečni limit poruka (${usage.used}/${usage.limit}). Molimo kontaktirajte domaćina.`
+          : `This property has reached its monthly message limit (${usage.used}/${usage.limit}). Please contact the host.`;
 
-      const withNumbers =
-        typeof used === "number" && typeof limit === "number"
-          ? `${baseMsg} (${used}/${limit})`
-          : baseMsg;
-
-      return twimlMessage(withNumbers);
+      return twimlMessage(msg);
     }
   } catch (e) {
-    // If usage check fails, don't block the guest; just log it.
+    // Ako usage check padne, nemoj blokirati gosta — samo log
     console.error("Usage check error:", e);
   }
 
@@ -204,7 +177,7 @@ ${property.knowledge_text}
     // Keep technical fallback reply
   }
 
-  // ✅ Human handoff (only when guest asks, OR the model explicitly used the fallback-forward line)
+  // ✅ Human handoff (only when guest asks, OR the model used the exact forward line)
   const shouldHandoff = wantsHuman(guestMessage) || isFallbackReply(reply);
 
   if (shouldHandoff) {
