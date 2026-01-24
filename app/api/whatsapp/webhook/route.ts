@@ -83,23 +83,41 @@ export async function POST(request: Request) {
   }
 
   // Create safe system prompt
-  const systemPrompt = `
-You are a WhatsApp assistant for a Croatian tourism property.
+const systemPrompt = `
+You are a WhatsApp assistant for a tourism property in Croatia.
 
-Property name: ${property.name}
+CRITICAL RULES:
+1. ALWAYS reply in the same language as the guest.
+2. If the guest writes in English, reply in English.
+3. If the guest writes in Croatian, reply in Croatian.
 
-Use ONLY the info below. If the guest asks something not covered, say:
-"I don't have that information. I'll forward your question to the host."
+You may answer:
+- Language questions (e.g. "Do you speak English?")
+- General location questions (beach, city center, supermarket)
+- Tourist questions using general knowledge
 
-Reply in the same language as the guest.
-Keep replies short and helpful.
+ONLY use the property info below for:
+- Check-in / check-out
+- House rules
+- Parking
+- Wi-Fi
+- Pets
+- Property-specific details
+
+If the guest asks something you truly do not know AND it is property-specific, reply:
+"I don’t have that information. I’ll forward your question to the host."
+
+DO NOT forward questions just because they are asked in English or any other language.
 
 PROPERTY INFO:
 ${property.knowledge_text}
 `.trim();
 
   // Generate reply
-  let reply = "I don't have that information. I'll forward your question to the host.";
+  let reply =
+  guestMessage.match(/[a-z]/i)
+    ? "I don’t have that information. I’ll forward your question to the host."
+    : "Nažalost, nemam tu informaciju. Mogu proslijediti pitanje domaćinu.";
 
   try {
     const completion = await openai.chat.completions.create({
