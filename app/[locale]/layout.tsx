@@ -1,6 +1,8 @@
 import type { ReactNode } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
+import { LocaleSwitch } from "@/components/locale-switch";
+import { t as T, getLocale } from "@/lib/i18n";
 
 export default async function LocaleLayout({
   children,
@@ -10,91 +12,59 @@ export default async function LocaleLayout({
   params: Promise<{ locale: string }>;
 }) {
   const { locale } = await params;
-  const isHr = locale === "hr";
 
-  const t = isHr
-    ? {
-        features: "Značajke",
-        pricing: "Cijene",
-        contact: "Kontakt",
-        login: "Prijava",
-        cta: "Pokreni besplatno",
-      }
-    : {
-        features: "Features",
-        pricing: "Pricing",
-        contact: "Contact",
-        login: "Login",
-        cta: "Get started free",
-      };
-
-  const otherLocale = isHr ? "en" : "hr";
+  const loc = getLocale(locale); // "en" | "hr"
+  const tt = T(loc);
 
   return (
-    <html lang={locale}>
+    <html lang={loc}>
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
-        {/* HEADER */}
         <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur">
           <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-6">
-            {/* Logo */}
-            <Link
-              href={`/${locale}`}
-              className="text-lg font-semibold tracking-tight"
-            >
-              GuestBot
+            <Link href={`/${loc}`} className="text-lg font-semibold tracking-tight">
+              Gostly
             </Link>
 
-            {/* Nav links */}
+            {/* Nav */}
             <nav className="hidden items-center gap-6 md:flex">
               <Link
-                href={`/${locale}/features`}
-                className="text-sm text-muted-foreground hover:text-foreground transition"
+                href={`/${loc}/pricing`}
+                className="text-sm text-muted-foreground transition hover:text-foreground"
               >
-                {t.features}
+                {tt.nav.pricing}
               </Link>
+
+              {/* Dashboard link (koristiš postojeći key) */}
               <Link
-                href={`/${locale}/pricing`}
-                className="text-sm text-muted-foreground hover:text-foreground transition"
+                href={`/${loc}/app/properties`}
+                className="text-sm text-muted-foreground transition hover:text-foreground"
               >
-                {t.pricing}
-              </Link>
-              <Link
-                href={`/${locale}/contact`}
-                className="text-sm text-muted-foreground hover:text-foreground transition"
-              >
-                {t.contact}
+                {tt.nav.dashboard}
               </Link>
             </nav>
 
             {/* Right actions */}
             <div className="ml-auto flex items-center gap-2">
-              <Link
-                href={`/${otherLocale}`}
-                className="rounded-md px-2 py-1 text-xs font-medium text-muted-foreground hover:bg-muted hover:text-foreground transition"
-              >
-                {otherLocale.toUpperCase()}
-              </Link>
+              {/* ✅ tvoj LocaleSwitch očekuje prop "locale" */}
+              <LocaleSwitch locale={loc} />
 
               <Button asChild variant="ghost" size="sm">
-                <Link href={`/${locale}/login`}>{t.login}</Link>
+                <Link href={`/${loc}/login`}>{tt.nav.login}</Link>
               </Button>
 
+              {/* Pošto nemaš "cta" key u i18n, stavljam normalan button */}
               <Button asChild size="sm" className="rounded-xl">
-                <Link href={`/${locale}/signup`}>{t.cta}</Link>
+                <Link href={`/${loc}/signup`}>Get started</Link>
               </Button>
             </div>
           </div>
         </header>
 
-        {/* MAIN */}
-        <main className="mx-auto w-full max-w-6xl px-6 py-10">
-          {children}
-        </main>
+        <main className="mx-auto w-full max-w-6xl px-6 py-10">{children}</main>
 
-        {/* FOOTER */}
         <footer className="border-t">
           <div className="mx-auto max-w-6xl px-6 py-6 text-sm text-muted-foreground">
-            © {new Date().getFullYear()} GuestBot
+            © {new Date().getFullYear()} Gostly
           </div>
         </footer>
       </body>

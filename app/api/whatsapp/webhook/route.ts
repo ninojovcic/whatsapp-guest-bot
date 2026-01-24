@@ -1,6 +1,7 @@
 import OpenAI from "openai";
 import { createClient } from "@supabase/supabase-js";
 import { sendHandoffEmail } from "@/lib/email";
+import { checkAndIncrementUsage } from "@/lib/usage";
 
 const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
 
@@ -13,8 +14,22 @@ function wantsHuman(text: string) {
   return /(human|host|owner|agent|call)/i.test(text);
 }
 
+// IMPORTANT: keep this narrow; otherwise handoff triggers too often
 function isFallbackReply(reply: string) {
-  return /forward|don’t have|do not have/i.test(reply);
+  const r = (reply || "").toLowerCase().trim();
+  return (
+    r === "i don’t have that information. i’ll forward your question to the host." ||
+    r === "i don't have that information. i'll forward your question to the host." ||
+    r === "nažalost, nemam tu informaciju. mogu proslijediti pitanje domaćinu." ||
+    r === "nazalost, nemam tu informaciju. mogu proslijediti pitanje domacinu."
+  );
+}
+
+function detectGuestLang(text: string): "hr" | "en" {
+  const t = (text || "").toLowerCase();
+  if (/[čćžšđ]/i.test(text)) return "hr";
+  if (/(molim|hvala|gdje|kako|koliko|najbliž|pl[aá]ž|smještaj|domaćin)/i.test(t)) return "hr";
+  return "en";
 }
 
 function escapeXml(str: string) {
@@ -44,6 +59,16 @@ function parsePropertyCode(input: string) {
   return { code: m[1].toUpperCase(), message: m[2].trim() };
 }
 
+async function checkUsageFlexible(propertyId: string) {
+  // We don't know your exact function signature, so we support both:
+  // checkAndIncrementUsage(propertyId) OR checkAndIncrementUsage({ propertyId })
+  try {
+    return await (checkAndIncrementUsage as any)({ propertyId });
+  } catch {
+    return await (checkAndIncrementUsage as any)(propertyId);
+  }
+}
+
 export async function POST(request: Request) {
   if (!process.env.OPENAI_API_KEY) return twimlMessage("Missing OPENAI_API_KEY.");
   if (!process.env.SUPABASE_URL || !process.env.SUPABASE_SERVICE_ROLE_KEY) {
@@ -65,6 +90,7 @@ export async function POST(request: Request) {
   }
 
   const { code, message: guestMessage } = parsed;
+  const guestLang = detectGuestLang(guestMessage);
 
   // Load property (include handoff_email)
   const { data: property, error: propErr } = await supabase
@@ -75,25 +101,69 @@ export async function POST(request: Request) {
 
   if (propErr) {
     console.error("Supabase property lookup error:", propErr);
-    return twimlMessage("Server error. Please try again.");
+    return twimlMessage(guestLang === "hr" ? "Greška na serveru. Pokušaj ponovno." : "Server error. Please try again.");
   }
 
   if (!property) {
-    return twimlMessage(`Unknown property code "${code}".`);
+    return twimlMessage(
+      guestLang === "hr"
+        ? `Nepoznat kod objekta "${code}".`
+        : `Unknown property code "${code}".`
+    );
+  }
+
+  // ✅ USAGE LIMITS (check + block)
+  try {
+    const usageRes: any = await checkUsageFlexible(property.id);
+
+    // support multiple shapes: { allowed }, { ok }, { blocked }, { limitExceeded }
+    const allowed =
+      usageRes?.allowed === true ||
+      usageRes?.ok === true ||
+      usageRes?.blocked === false ||
+      usageRes?.limitExceeded === false;
+
+    const blocked =
+      usageRes?.allowed === false ||
+      usageRes?.ok === false ||
+      usageRes?.blocked === true ||
+      usageRes?.limitExceeded === true;
+
+    if (blocked && !allowed) {
+      // If we have numbers, include them
+      const used = usageRes?.used ?? usageRes?.count ?? null;
+      const limit = usageRes?.limit ?? usageRes?.monthly_limit ?? null;
+
+      const baseMsg =
+        guestLang === "hr"
+          ? "Limit poruka za ovaj objekt je dosegnut za ovaj mjesec. Molimo kontaktirajte domaćina."
+          : "This property has reached its monthly message limit. Please contact the host.";
+
+      const withNumbers =
+        typeof used === "number" && typeof limit === "number"
+          ? `${baseMsg} (${used}/${limit})`
+          : baseMsg;
+
+      return twimlMessage(withNumbers);
+    }
+  } catch (e) {
+    // If usage check fails, don't block the guest; just log it.
+    console.error("Usage check error:", e);
   }
 
   // Create safe system prompt
-const systemPrompt = `
+  const systemPrompt = `
 You are a WhatsApp assistant for a tourism property in Croatia.
 
 CRITICAL RULES:
 1. ALWAYS reply in the same language as the guest.
 2. If the guest writes in English, reply in English.
 3. If the guest writes in Croatian, reply in Croatian.
+4. Always be polite and friendly.
 
 You may answer:
 - Language questions (e.g. "Do you speak English?")
-- General location questions (beach, city center, supermarket)
+- General location questions (nearest beach, city center, supermarket) using general knowledge and suggestions (e.g. recommend using Google Maps).
 - Tourist questions using general knowledge
 
 ONLY use the property info below for:
@@ -113,11 +183,11 @@ PROPERTY INFO:
 ${property.knowledge_text}
 `.trim();
 
-  // Generate reply
+  // Fallback reply (ONLY for OpenAI failure, do NOT trigger handoff)
   let reply =
-  guestMessage.match(/[a-z]/i)
-    ? "I don’t have that information. I’ll forward your question to the host."
-    : "Nažalost, nemam tu informaciju. Mogu proslijediti pitanje domaćinu.";
+    guestLang === "hr"
+      ? "Trenutno imam tehničkih poteškoća. Pokušaj ponovno za minutu."
+      : "I’m having a technical issue right now. Please try again in a minute.";
 
   try {
     const completion = await openai.chat.completions.create({
@@ -131,25 +201,25 @@ ${property.knowledge_text}
     reply = completion.choices[0]?.message?.content?.trim() || reply;
   } catch (e) {
     console.error("OpenAI error:", e);
-    // Keep fallback reply
+    // Keep technical fallback reply
   }
 
-  // ✅ STEP 5: Human handoff
+  // ✅ Human handoff (only when guest asks, OR the model explicitly used the fallback-forward line)
   const shouldHandoff = wantsHuman(guestMessage) || isFallbackReply(reply);
 
   if (shouldHandoff) {
-    // Always keep WhatsApp response safe + consistent
-    reply = "I’ll forward your question to the host.";
+    reply =
+      guestLang === "hr"
+        ? "Proslijedit ću pitanje domaćinu."
+        : "I’ll forward your question to the host.";
 
     console.log("HANDOFF TRIGGERED", {
-    code,
-    property: property.name,
-    toEmail: property.handoff_email,
-    hasResendKey: !!process.env.RESEND_API_KEY,
+      code,
+      property: property.name,
+      toEmail: property.handoff_email,
+      hasResendKey: !!process.env.RESEND_API_KEY,
     });
 
-    
-    // Notify owner by email if configured
     if (property.handoff_email) {
       try {
         await sendHandoffEmail({
@@ -164,7 +234,7 @@ ${property.knowledge_text}
     }
   }
 
-  // Log message+reply (log the final reply after handoff logic)
+  // Log message+reply
   const { error: logErr } = await supabase.from("messages").insert({
     property_id: property.id,
     from_number: from,
