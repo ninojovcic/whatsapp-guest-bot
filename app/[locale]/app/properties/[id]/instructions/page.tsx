@@ -1,3 +1,5 @@
+/* eslint-disable @next/next/no-img-element */
+
 import Link from "next/link";
 import QRCode from "qrcode";
 import { redirect } from "next/navigation";
@@ -114,7 +116,7 @@ export default async function InstructionsPage({
             <div className="rounded-xl border p-4">
               <div className="text-sm font-medium">Scan to chat</div>
               <div className="mt-3 flex justify-center">
-                // eslint-disable-next-line @next/next/no-img-element
+                eslint-disable-next-line @next/next/no-img-element
                 <img src={qrDataUrl} alt="WhatsApp QR" className="h-auto w-[320px]" />
               </div>
               <div className="mt-3 text-xs text-muted-foreground">
