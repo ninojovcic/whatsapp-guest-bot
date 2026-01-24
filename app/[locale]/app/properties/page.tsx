@@ -65,7 +65,7 @@ export default async function PropertiesPage({
                 const printPath = `/${locale}/app/properties/${p.id}/instructions`;
 
                 // Public guest link (no login, for guests)
-                const guestPath = `/g/${encodeURIComponent(p.code)}`;
+                const guestPath = `/${locale}/g/${p.code}`;
 
                 return (
                   <div

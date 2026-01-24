@@ -1,12 +1,13 @@
 /* eslint-disable @next/next/no-img-element */
 
 import Link from "next/link";
-import { redirect } from "next/navigation";
+import QRCode from "qrcode";
+import { createSupabaseServer } from "@/lib/supabase/server";
 
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
+import { Button } from "@/components/ui/button";
 
 function digitsOnlyPhone(e164: string) {
   return (e164 || "").replace(/[^\d]/g, "");
@@ -18,215 +19,111 @@ function buildWaMeLink(phoneE164: string, text: string) {
   return `https://wa.me/${phone}?text=${encoded}`;
 }
 
-const copy = {
-  en: {
-    title: "Chat with your host assistant",
-    subtitle:
-      "This will open WhatsApp with your property code prefilled, so you get faster help.",
-    howTitle: "How it works",
-    steps: [
-      "Tap “Open WhatsApp”.",
-      "Send the prefilled message (it includes your property code).",
-      "Ask any question — you’ll get an instant reply.",
-    ],
-    questionLabel: "Optional: type your question",
-    questionPlaceholder: "Example: Do you have parking? What’s the Wi-Fi password?",
-    open: "Open WhatsApp",
-    copyMsg: "Copy message",
-    copied: "Copied ✅",
-    codeLabel: "Property code",
-    back: "Back to website",
-    missingPhone:
-      "Missing NEXT_PUBLIC_WHATSAPP_NUMBER env var. Ask the owner to configure it.",
-  },
-  hr: {
-    title: "Chat s asistentom za smještaj",
-    subtitle:
-      "Ovo će otvoriti WhatsApp s unaprijed upisanim kodom objekta, tako da brže dobiješ pomoć.",
-    howTitle: "Kako radi",
-    steps: [
-      "Klikni “Otvori WhatsApp”.",
-      "Pošalji unaprijed pripremljenu poruku (sadrži kod objekta).",
-      "Postavi pitanje — dobit ćeš brz odgovor.",
-    ],
-    questionLabel: "Opcionalno: upiši pitanje",
-    questionPlaceholder: "Primjer: Imate li parking? Koja je lozinka za Wi-Fi?",
-    open: "Otvori WhatsApp",
-    copyMsg: "Kopiraj poruku",
-    copied: "Kopirano ✅",
-    codeLabel: "Kod objekta",
-    back: "Natrag na web",
-    missingPhone:
-      "Nedostaje env var NEXT_PUBLIC_WHATSAPP_NUMBER. Vlasnik to mora postaviti.",
-  },
-};
-
-export default async function GuestCodePage({
+export default async function GuestInstructionsByCodePage({
   params,
-  searchParams,
 }: {
-  params: Promise<{ code: string }>;
-  searchParams?: Promise<{ lang?: string }>;
+  params: Promise<{ locale: string; code: string }>;
 }) {
-  const { code } = await params;
-  const sp = (await searchParams) || {};
-  const lang = sp.lang === "hr" ? "hr" : "en";
-  const t = copy[lang];
+  const { locale, code } = await params;
+  const normalizedCode = (code || "").trim().toUpperCase();
 
-  const propertyCode = decodeURIComponent(code || "").trim().toUpperCase();
-  if (!propertyCode) redirect("/");
+  const supabase = await createSupabaseServer();
 
-  const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
-  if (!phone) {
+  // IMPORTANT: public page → do NOT require auth
+  const { data: property } = await supabase
+    .from("properties")
+    .select("id,name,code")
+    .eq("code", normalizedCode)
+    .single();
+
+  if (!property) {
     return (
-      <div className="mx-auto max-w-xl p-6">
-        <Card>
-          <CardHeader>
-            <CardTitle>{t.title}</CardTitle>
-          </CardHeader>
-          <CardContent className="space-y-3">
-            <p className="text-sm text-muted-foreground">{t.missingPhone}</p>
-            <Button asChild variant="outline">
-              <Link href="/">{t.back}</Link>
-            </Button>
-          </CardContent>
-        </Card>
+      <div className="space-y-4">
+        <h1 className="text-2xl font-semibold">Guest instructions</h1>
+        <p className="text-sm text-muted-foreground">
+          Unknown property code: <span className="font-mono">{normalizedCode}</span>
+        </p>
+        <Button asChild variant="outline">
+          <Link href={`/${locale}`}>Back</Link>
+        </Button>
       </div>
     );
   }
 
-  // Default message guests send
-  const baseMessage = `${propertyCode}: Hi! I have a question about my stay.`;
+  const phone = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
+  if (!phone) {
+    return (
+      <div className="space-y-4">
+        <h1 className="text-2xl font-semibold">Guest instructions</h1>
+        <p className="text-sm text-muted-foreground">
+          Missing <span className="font-mono">NEXT_PUBLIC_WHATSAPP_NUMBER</span> env var.
+        </p>
+      </div>
+    );
+  }
 
-  // Toggle language links (preserve code)
-  const hrUrl = `/g/${encodeURIComponent(propertyCode)}?lang=hr`;
-  const enUrl = `/g/${encodeURIComponent(propertyCode)}?lang=en`;
+  const prefill = `${property.code}: Hi! I have a question about my stay.`;
+  const waLink = buildWaMeLink(phone, prefill);
+
+  const qrDataUrl = await QRCode.toDataURL(waLink, {
+    width: 320,
+    margin: 1,
+    errorCorrectionLevel: "M",
+  });
 
   return (
-    <div className="mx-auto max-w-3xl p-6">
-      {/* Tiny client script for input + copy + open */}
-      <script
-        dangerouslySetInnerHTML={{
-          __html: `
-(function () {
-  const code = ${JSON.stringify(propertyCode)};
-  const base = ${JSON.stringify(baseMessage)};
-  const phone = ${JSON.stringify(phone)};
-  const input = document.getElementById("q");
-  const openBtn = document.getElementById("open");
-  const copyBtn = document.getElementById("copy");
-  const msgBox = document.getElementById("msg");
-
-  function digitsOnlyPhone(e164){ return (e164||"").replace(/[^\\d]/g,""); }
-  function buildLink(text){
-    const p = digitsOnlyPhone(phone);
-    return "https://wa.me/" + p + "?text=" + encodeURIComponent(text);
-  }
-
-  function currentMessage(){
-    const extra = (input && input.value || "").trim();
-    return extra ? (code + ": " + extra) : base;
-  }
-
-  function sync(){
-    const msg = currentMessage();
-    if (msgBox) msgBox.textContent = msg;
-    if (openBtn) openBtn.setAttribute("href", buildLink(msg));
-  }
-
-  if (input) input.addEventListener("input", sync);
-
-  if (copyBtn) {
-    copyBtn.addEventListener("click", async function(){
-      try {
-        await navigator.clipboard.writeText(currentMessage());
-        const original = copyBtn.textContent;
-        copyBtn.textContent = ${JSON.stringify(t.copied)};
-        setTimeout(() => copyBtn.textContent = original, 1200);
-      } catch(e) {}
-    });
-  }
-
-  sync();
-})();`,
-        }}
-      />
-
-      <div className="mb-4 flex items-center justify-between gap-3">
-        <div className="flex items-center gap-2">
-          <Badge variant="outline" className="font-mono">
-            {propertyCode}
-          </Badge>
-          <span className="text-xs text-muted-foreground">{t.codeLabel}</span>
-        </div>
-
-        <div className="flex items-center gap-2">
-          <Button variant={lang === "en" ? "secondary" : "outline"} asChild size="sm">
-            <Link href={enUrl}>EN</Link>
-          </Button>
-          <Button variant={lang === "hr" ? "secondary" : "outline"} asChild size="sm">
-            <Link href={hrUrl}>HR</Link>
-          </Button>
-        </div>
-      </div>
-
-      <Card className="overflow-hidden">
+    <div className="mx-auto max-w-3xl space-y-6">
+      <Card>
         <CardHeader className="space-y-2">
-          <CardTitle className="text-2xl">{t.title}</CardTitle>
-          <p className="text-sm text-muted-foreground">{t.subtitle}</p>
+          <CardTitle className="text-xl">{property.name}</CardTitle>
+          <div className="flex items-center gap-2">
+            <Badge variant="outline" className="font-mono">
+              {property.code}
+            </Badge>
+            <span className="text-xs text-muted-foreground">Property code</span>
+          </div>
         </CardHeader>
 
         <CardContent className="space-y-5">
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-6 md:grid-cols-[360px_1fr]">
             <div className="rounded-xl border p-4">
-              <div className="text-sm font-medium">{t.howTitle}</div>
-              <Separator className="my-3" />
-              <ol className="list-decimal space-y-2 pl-5 text-sm">
-                {t.steps.map((s) => (
-                  <li key={s}>{s}</li>
-                ))}
-              </ol>
+              <div className="text-sm font-medium">Scan to chat</div>
+              <div className="mt-3 flex justify-center">
+                <img src={qrDataUrl} alt="WhatsApp QR" className="h-auto w-[320px]" />
+              </div>
+              <div className="mt-3 text-xs text-muted-foreground">
+                Opens WhatsApp and pre-fills your property code.
+              </div>
             </div>
 
-            <div className="rounded-xl border p-4">
-              <div className="text-sm font-medium">{t.questionLabel}</div>
-              <Separator className="my-3" />
-              <input
-                id="q"
-                className="w-full rounded-lg border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
-                placeholder={t.questionPlaceholder}
-              />
+            <div className="space-y-4">
+              <div className="rounded-xl border p-4">
+                <div className="text-sm font-medium">EN</div>
+                <Separator className="my-3" />
+                <ol className="list-decimal space-y-2 pl-5 text-sm">
+                  <li>Scan the QR code (or open the link below).</li>
+                  <li>Send the pre-filled message (it includes the property code).</li>
+                  <li>Ask any question — you’ll get an instant reply.</li>
+                </ol>
+              </div>
 
-              <div className="mt-3 flex flex-wrap gap-2">
-                <Button asChild>
-                  <a id="open" href={buildWaMeLink(phone, baseMessage)} target="_blank" rel="noreferrer">
-                    {t.open}
-                  </a>
-                </Button>
-                <Button id="copy" type="button" variant="outline">
-                  {t.copyMsg}
-                </Button>
+              <div className="rounded-xl border p-4">
+                <div className="text-sm font-medium">HR</div>
+                <Separator className="my-3" />
+                <ol className="list-decimal space-y-2 pl-5 text-sm">
+                  <li>Skeniraj QR kod (ili otvori link ispod).</li>
+                  <li>Pošalji unaprijed pripremljenu poruku (sadrži kod objekta).</li>
+                  <li>Postavi pitanje — dobit ćeš brz odgovor.</li>
+                </ol>
               </div>
             </div>
           </div>
 
           <div className="rounded-xl border p-4">
-            <div className="text-sm font-medium">Message preview</div>
-            <div
-              id="msg"
-              className="mt-2 whitespace-pre-wrap break-words rounded-md bg-muted p-3 font-mono text-xs"
-            >
-              {baseMessage}
+            <div className="text-sm font-medium">Backup link (if QR doesn’t work)</div>
+            <div className="mt-2 break-all rounded-md bg-muted p-3 font-mono text-xs">
+              {waLink}
             </div>
-            <div className="mt-2 text-xs text-muted-foreground">
-              (This is exactly what will be sent on WhatsApp.)
-            </div>
-          </div>
-
-          <div className="flex justify-between">
-            <Button asChild variant="ghost">
-              <Link href="/">{t.back}</Link>
-            </Button>
           </div>
         </CardContent>
       </Card>
