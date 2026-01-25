@@ -16,9 +16,9 @@ export function DemoRotator({
   const items: DemoItem[] = useMemo(() => {
     const hr: DemoItem[] = [
       { q: `${code}: Imate li parking?`, a: "Da — besplatan parking je dostupan ispred objekta." },
-      { q: `${code}: Gdje je najbliža plaža?`, a: "Najbliža plaža je obično unutar 5–15 minuta pješice. Ako mi kažeš ulicu ili kvart, mogu predložiti najbližu opciju." },
-      { q: `${code}: Koja je lozinka za Wi-Fi?`, a: "Wi-Fi lozinka je navedena u uputama objekta. Ako je ne vidiš, napiši domaćinu i provjerit će za tebe." },
-      { q: `${code}: Kada je check-in?`, a: "Check-in je nakon 15:00. Ako dolaziš ranije, napiši pa ćemo provjeriti može li raniji ulazak." },
+      { q: `${code}: Gdje je najbliža plaža?`, a: "Najbliža plaža je obično unutar 5–15 minuta pješice." },
+      { q: `${code}: Koja je lozinka za Wi-Fi?`, a: "Wi-Fi lozinka je navedena u uputama objekta." },
+      { q: `${code}: Kada je check-in?`, a: "Check-in je nakon 15:00." },
     ];
 
     const en: DemoItem[] = [
