@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { createSupabaseServer } from "@/lib/supabase/server";
+import { OAuthButtons } from "@/components/oauth-buttons";
 
 export default async function LoginPage({
   params,
@@ -18,37 +19,50 @@ export default async function LoginPage({
 
   if (user) redirect(`/${locale}/app`);
 
+  const next = `/${locale}/app`;
+
   return (
     <div className="mx-auto max-w-md">
-      <Card className="rounded-3xl">
+      <Card className="rounded-3xl border bg-background/55 backdrop-blur">
         <CardHeader>
-          <CardTitle className="text-xl">Login</CardTitle>
+          <CardTitle className="text-xl">
+            {locale === "hr" ? "Prijava" : "Login"}
+          </CardTitle>
         </CardHeader>
+
         <CardContent className="space-y-4">
-          <form action={`/${locale}/auth/sign-in`} method="post" className="space-y-3">
+          {/* OAuth */}
+          <OAuthButtons locale={locale} next={next} />
+
+          {/* Email/password */}
+          <form
+            action={`/${locale}/auth/sign-in`}
+            method="post"
+            className="space-y-3"
+          >
             <input
               name="email"
               type="email"
-              placeholder="Email"
+              placeholder={locale === "hr" ? "Email" : "Email"}
               required
-              className="w-full rounded-xl border bg-background px-3 py-2"
+              className="w-full rounded-xl border bg-background/40 px-3 py-2 outline-none ring-0 focus:border-foreground/20"
             />
             <input
               name="password"
               type="password"
-              placeholder="Password"
+              placeholder={locale === "hr" ? "Lozinka" : "Password"}
               required
-              className="w-full rounded-xl border bg-background px-3 py-2"
+              className="w-full rounded-xl border bg-background/40 px-3 py-2 outline-none ring-0 focus:border-foreground/20"
             />
             <Button type="submit" className="w-full rounded-2xl">
-              Log in
+              {locale === "hr" ? "Prijavi se" : "Log in"}
             </Button>
           </form>
 
           <div className="text-sm text-muted-foreground">
-            Don’t have an account?{" "}
+            {locale === "hr" ? "Nemaš račun?" : "Don’t have an account?"}{" "}
             <Link className="underline" href={`/${locale}/signup`}>
-              Sign up
+              {locale === "hr" ? "Registracija" : "Sign up"}
             </Link>
           </div>
         </CardContent>

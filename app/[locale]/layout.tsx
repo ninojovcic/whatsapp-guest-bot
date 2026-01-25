@@ -92,7 +92,7 @@ export default async function LocaleLayout({
               </Link>
 
               <Link
-                href={`/${loc}/app/properties`}
+                href={`/${loc}/app`}
                 className="text-sm text-muted-foreground transition hover:text-foreground"
               >
                 {tt.nav.dashboard}
