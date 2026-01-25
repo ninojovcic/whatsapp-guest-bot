@@ -39,7 +39,7 @@ export default async function LocaleLayout({
   }
 
   return (
-    <html lang={loc}>
+    <html lang={loc} className="dark">
       <body className="min-h-screen bg-background font-sans text-foreground antialiased">
         <header className="sticky top-0 z-50 w-full border-b bg-background/80 backdrop-blur">
           <div className="mx-auto flex h-16 max-w-6xl items-center gap-6 px-6">
