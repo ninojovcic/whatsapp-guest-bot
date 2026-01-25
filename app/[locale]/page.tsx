@@ -132,7 +132,10 @@ export default async function Landing({
 
         {/* bottom glow */}
         <div className="absolute bottom-[-55%] left-1/2 h-[980px] w-[1400px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.18),transparent_66%)] blur-3xl" />
-        </div>
+
+        {/* vignette for premium depth */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.55)_78%)]" />
+      </div>
 
       {/* HERO */}
       <section className="relative overflow-hidden rounded-3xl border bg-background/70 backdrop-blur">
