@@ -20,7 +20,11 @@ export default async function Landing({
         p: "Odgovara gostima 24/7 na najčešća pitanja, smanjuje broj poruka prema domaćinu i osigurava da se svaki važan upit automatski proslijedi kada je potrebna ljudska intervencija.",
         cta1: "Isprobaj odmah",
         cta2: "Pogledaj cijene",
-        proof: ["Brzo postavljanje [5 min]", "Jednostavno sučelje", "Siguran i pouzdan handoff"],
+        proof: [
+          "Brzo postavljanje [5 min]",
+          "Jednostavno sučelje",
+          "Siguran i pouzdan handoff",
+        ],
         featuresTitle: "Što dobivaš?",
         features: [
           {
@@ -42,9 +46,18 @@ export default async function Landing({
         ],
         howTitle: "Kako radi",
         steps: [
-          { title: "Uneseš informacije", desc: "Check-in/out, parking, Wi-Fi, pravila, FAQ." },
-          { title: "Gosti šalju poruke", desc: "WhatsApp upiti dolaze automatski u sustav." },
-          { title: "Gostly odgovara ili prosljeđuje domaćinu", desc: "Gostly šalje odgovor ili prosljeđuje domaćinu." },
+          {
+            title: "Uneseš informacije",
+            desc: "Check-in/out, parking, Wi-Fi, pravila, FAQ.",
+          },
+          {
+            title: "Gosti šalju poruke",
+            desc: "WhatsApp upiti dolaze automatski u sustav.",
+          },
+          {
+            title: "Gostly odgovara ili prosljeđuje domaćinu",
+            desc: "Gostly šalje odgovor ili prosljeđuje domaćinu.",
+          },
         ],
         demoTitle: "Brzi demo",
         demoQ: "TEST1: Imate li parking?",
@@ -62,16 +75,37 @@ export default async function Landing({
         proof: ["No card", "5-min setup", "Safe handoff"],
         featuresTitle: "What you get",
         features: [
-          { title: "Replies 24/7", desc: "Guests get answers instantly—even when you’re offline." },
-          { title: "Bilingual + auto language", desc: "Replies in the guest’s language without extra work." },
-          { title: "Human handoff", desc: "If info is missing, it doesn’t guess—it emails the host." },
-          { title: "Logs & insights", desc: "Messages are saved so you can improve your info and FAQs." },
+          {
+            title: "Replies 24/7",
+            desc: "Guests get answers instantly—even when you’re offline.",
+          },
+          {
+            title: "Bilingual + auto language",
+            desc: "Replies in the guest’s language without extra work.",
+          },
+          {
+            title: "Human handoff",
+            desc: "If info is missing, it doesn’t guess—it emails the host.",
+          },
+          {
+            title: "Logs & insights",
+            desc: "Messages are saved so you can improve your info and FAQs.",
+          },
         ],
         howTitle: "How it works",
         steps: [
-          { title: "Add your info", desc: "Check-in/out, parking, Wi-Fi, rules, FAQs." },
-          { title: "Guests message you", desc: "WhatsApp questions flow into the system." },
-          { title: "Bot answers or escalates", desc: "Safe answer or instant handoff to host." },
+          {
+            title: "Add your info",
+            desc: "Check-in/out, parking, Wi-Fi, rules, FAQs.",
+          },
+          {
+            title: "Guests message you",
+            desc: "WhatsApp questions flow into the system.",
+          },
+          {
+            title: "Bot answers or escalates",
+            desc: "Safe answer or instant handoff to host.",
+          },
         ],
         demoTitle: "Quick demo",
         demoQ: "TEST1: Do you have parking?",
@@ -82,21 +116,20 @@ export default async function Landing({
       };
 
   return (
-    <div className="space-y-16">
+    <div className="relative space-y-16 overflow-hidden">
+      {/* ✅ Global WhatsApp-ish background glow (page-level) */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-48 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.18),transparent_60%)]" />
+        <div className="absolute top-[30%] right-[-20%] h-[500px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.14),transparent_60%)]" />
+        <div className="absolute bottom-[-30%] left-[-20%] h-[500px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.10),transparent_62%)]" />
+      </div>
+
       {/* HERO */}
       <section className="relative overflow-hidden rounded-3xl border bg-background">
-        {/* Stripe-like glow background */}
-        <div className="pointer-events-none absolute inset-0 -z-10">
-          <div className="absolute -top-28 left-1/2 h-80 w-[60rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.16),transparent_60%)]" />
-          <div className="absolute -bottom-32 right-[-10rem] h-80 w-[34rem] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.14),transparent_60%)]" />
-          <div className="absolute -bottom-24 left-[-8rem] h-72 w-[28rem] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.10),transparent_62%)]" />
-        </div>
-
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-muted/60 to-background" />
 
         <div className="grid gap-10 p-8 md:grid-cols-2 md:p-12">
           <div className="space-y-6">
-            {/* Slightly “whatsapp” accent via ring */}
             <Badge
               variant="secondary"
               className="w-fit border border-foreground/5 bg-muted/60"
@@ -128,7 +161,7 @@ export default async function Landing({
               <Button
                 asChild
                 size="lg"
-                className="rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+                className="rounded-2xl shadow-sm transition-shadow hover:shadow-md"
               >
                 <Link href={`/${locale}/signup`}>{copy.cta1}</Link>
               </Button>
@@ -144,15 +177,9 @@ export default async function Landing({
             </div>
           </div>
 
-          {/* RIGHT: Demo card */}
+          {/* RIGHT: Demo card (clean, no per-card glow) */}
           <div className="flex items-center">
-            <Card className="relative w-full rounded-3xl border-foreground/10 bg-background/70 backdrop-blur">
-              {/* card glow */}
-              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
-                <div className="absolute -top-24 left-1/2 h-64 w-[40rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.14),transparent_60%)]" />
-                <div className="absolute -bottom-28 right-[-8rem] h-64 w-80 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.12),transparent_60%)]" />
-              </div>
-
+            <Card className="w-full rounded-3xl border bg-background transition-shadow hover:shadow-md">
               <CardHeader>
                 <CardTitle className="text-base">{copy.demoTitle}</CardTitle>
               </CardHeader>
@@ -181,13 +208,8 @@ export default async function Landing({
           {copy.features.map((f) => (
             <Card
               key={f.title}
-              className="relative rounded-3xl border-foreground/10 bg-background/70 backdrop-blur transition-shadow hover:shadow-md"
+              className="rounded-3xl border bg-background transition-shadow hover:shadow-md"
             >
-              {/* subtle per-card glow */}
-              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
-                <div className="absolute -top-24 left-1/2 h-56 w-[36rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.10),transparent_60%)]" />
-              </div>
-
               <CardHeader>
                 <CardTitle className="text-lg">{f.title}</CardTitle>
               </CardHeader>
@@ -211,12 +233,8 @@ export default async function Landing({
           {copy.steps.map((s, idx) => (
             <Card
               key={s.title}
-              className="relative rounded-3xl border-foreground/10 bg-background/70 backdrop-blur transition-shadow hover:shadow-md"
+              className="rounded-3xl border bg-background transition-shadow hover:shadow-md"
             >
-              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
-                <div className="absolute -top-24 left-1/2 h-56 w-[30rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.10),transparent_62%)]" />
-              </div>
-
               <CardHeader className="space-y-3">
                 <Badge
                   variant="secondary"
@@ -235,13 +253,7 @@ export default async function Landing({
       </section>
 
       {/* FINAL CTA */}
-      <section className="relative overflow-hidden rounded-3xl border bg-muted/30 p-8 md:p-12">
-        {/* CTA glow */}
-        <div className="pointer-events-none absolute inset-0">
-          <div className="absolute -top-24 left-1/2 h-72 w-[56rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.14),transparent_60%)]" />
-          <div className="absolute -bottom-28 right-[-8rem] h-72 w-96 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.12),transparent_60%)]" />
-        </div>
-
+      <section className="rounded-3xl border bg-muted/30 p-8 md:p-12">
         <div className="grid gap-6 md:grid-cols-2 md:items-center">
           <div className="space-y-2">
             <h3 className="text-2xl font-semibold tracking-tight">
@@ -254,7 +266,7 @@ export default async function Landing({
             <Button
               asChild
               size="lg"
-              className="rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+              className="rounded-2xl shadow-sm transition-shadow hover:shadow-md"
             >
               <Link href={`/${locale}/signup`}>{copy.finalCta}</Link>
             </Button>
