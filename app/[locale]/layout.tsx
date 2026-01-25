@@ -50,6 +50,13 @@ export default async function LocaleLayout({
             {/* Nav */}
             <nav className="hidden items-center gap-6 md:flex">
               <Link
+                href={`/${loc}#kako-radi`}
+                className="text-sm text-muted-foreground transition hover:text-foreground"
+                >
+                Kako radi?
+              </Link>
+
+              <Link
                 href={`/${loc}/pricing`}
                 className="text-sm text-muted-foreground transition hover:text-foreground"
               >
@@ -75,7 +82,7 @@ export default async function LocaleLayout({
                   </Button>
 
                   <Button asChild size="sm" className="rounded-xl">
-                    <Link href={`/${loc}/signup`}>Get started</Link>
+                    <Link href={`/${loc}/signup`}>Isprobaj Odmah</Link>
                   </Button>
                 </>
               ) : (

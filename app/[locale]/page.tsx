@@ -180,7 +180,7 @@ export default async function Landing({
       </section>
 
       {/* HOW IT WORKS */}
-      <section className="space-y-6">
+      <section id="kako-radi" className="scroll-mt-24 space-y-6">
         <div className="space-y-2">
           <h2 className="text-2xl font-semibold tracking-tight md:text-3xl">
             {copy.howTitle}
