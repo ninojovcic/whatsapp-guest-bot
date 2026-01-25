@@ -115,7 +115,7 @@ export default async function Landing({
       };
 
   return (
-    <div className="relative space-y-16">
+    <div className="relative space-y-16 overflow-hidden">
       {/* ✅ FULL-VIEWPORT glow (not limited to container width) */}
       <div className="pointer-events-none fixed inset-0 -z-10">
         {/* base dark wash */}
@@ -135,11 +135,6 @@ export default async function Landing({
 
         {/* subtle grain */}
         <div className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:18px_18px]" />
-
-        {/* ✅ bottom fade da se ne vidi “zeleni toolbar” na dnu */}
-        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70" />
-
-        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-black/35" />
       </div>
 
       {/* HERO */}
