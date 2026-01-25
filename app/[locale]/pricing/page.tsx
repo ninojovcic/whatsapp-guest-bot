@@ -16,7 +16,8 @@ export default async function Pricing({
   const t = isHR
     ? {
         title: "Cijene",
-        subtitle: "Kreni jednostavno, nadogradi kad ti treba. Jasno, bez sitnih slova.",
+        subtitle:
+          "Kreni jednostavno, nadogradi kad ti treba. Jasno, bez sitnih slova.",
         note: "Cijene su u EUR. Možeš otkazati bilo kada.",
         badgeTop: "Transparentno i jednostavno",
         starter: {
@@ -55,11 +56,13 @@ export default async function Pricing({
         faq1q: "Mogu li promijeniti plan kasnije?",
         faq1a: "Da. Možeš nadograditi ili smanjiti plan kad god želiš.",
         faq2q: "Trebam li karticu za Starter?",
-        faq2a: "Da, međutim prvi mjesec je besplatan i možeš otkazati bilo kad.",
+        faq2a:
+          "Da, međutim prvi mjesec je besplatan i možeš otkazati bilo kad.",
       }
     : {
         title: "Pricing",
-        subtitle: "Start simple, upgrade when you need more. Clear, no fine print.",
+        subtitle:
+          "Start simple, upgrade when you need more. Clear, no fine print.",
         note: "Prices in EUR. Cancel anytime.",
         badgeTop: "Transparent and simple",
         starter: {
@@ -102,27 +105,13 @@ export default async function Pricing({
       };
 
   return (
-    <main className="relative overflow-hidden bg-background text-foreground">
-      {/* Page glow (global) */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-[520px] left-1/2 h-[900px] w-[1200px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.22),transparent_62%)] blur-2xl" />
-        <div className="absolute top-[10%] right-[-35%] h-[900px] w-[900px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.18),transparent_64%)] blur-2xl" />
-        <div className="absolute top-[42%] left-[-35%] h-[900px] w-[900px] rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.16),transparent_65%)] blur-2xl" />
-        <div className="absolute bottom-[-45%] left-1/2 h-[900px] w-[1200px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.14),transparent_66%)] blur-2xl" />
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.35)_80%)]" />
-      </div>
-
-      {/* Global container */}
+    // ✅ No page bg here — let the global glow from layout show through
+    <main className="relative text-foreground">
       <div className="mx-auto w-full max-w-6xl px-6 py-12 md:py-16">
         {/* Header */}
-        <div className="relative overflow-hidden rounded-3xl border bg-background/70 p-8 shadow-sm backdrop-blur">
-          <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -top-24 left-1/2 h-72 w-[56rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.16),transparent_60%)]" />
-            <div className="absolute -bottom-28 right-[-8rem] h-72 w-96 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.12),transparent_60%)]" />
-          </div>
-
+        <div className="relative overflow-hidden rounded-3xl border bg-background/60 p-8 shadow-sm backdrop-blur">
           <div className="relative max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border bg-background/60 px-3 py-1 text-xs text-muted-foreground">
+            <div className="inline-flex items-center gap-2 rounded-full border bg-background/40 px-3 py-1 text-xs text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               {t.badgeTop}
             </div>
@@ -179,16 +168,20 @@ export default async function Pricing({
         </div>
 
         {/* Comparison */}
-        <div className="mt-10 overflow-hidden rounded-3xl border bg-background/70 shadow-sm backdrop-blur">
+        <div className="mt-10 overflow-hidden rounded-3xl border bg-background/55 shadow-sm backdrop-blur">
           <div className="p-6">
-            <h2 className="text-xl font-semibold tracking-tight">{t.compareTitle}</h2>
-            <p className="mt-1 text-sm text-muted-foreground">{t.compareSubtitle}</p>
+            <h2 className="text-xl font-semibold tracking-tight">
+              {t.compareTitle}
+            </h2>
+            <p className="mt-1 text-sm text-muted-foreground">
+              {t.compareSubtitle}
+            </p>
           </div>
 
           <div className="overflow-x-auto border-t">
             <table className="min-w-[780px] w-full border-collapse">
               <thead>
-                <tr className="border-b bg-muted/40">
+                <tr className="border-b bg-muted/30">
                   <th className="px-6 py-4 text-left text-xs font-semibold tracking-wide text-muted-foreground">
                     {t.featuresCol}
                   </th>
@@ -210,7 +203,12 @@ export default async function Pricing({
                   pro={isHR ? "Do 3" : "Up to 3"}
                   ent={isHR ? "Po dogovoru" : "Custom"}
                 />
-                <Row label={isHR ? "AI odgovori + handoff" : "AI replies + handoff"} starter pro ent />
+                <Row
+                  label={isHR ? "AI odgovori + handoff" : "AI replies + handoff"}
+                  starter
+                  pro
+                  ent
+                />
                 <Row
                   label={isHR ? "Analitika" : "Analytics"}
                   starter={isHR ? "Osnovna" : "Basic"}
@@ -229,8 +227,18 @@ export default async function Pricing({
                   pro={isHR ? "Prioritetna" : "Priority"}
                   ent="SLA"
                 />
-                <Row label={isHR ? "Integracije po mjeri" : "Custom integrations"} starter="—" pro="—" ent />
-                <Row label={isHR ? "Više timova" : "Multiple teams"} starter="—" pro="—" ent />
+                <Row
+                  label={isHR ? "Integracije po mjeri" : "Custom integrations"}
+                  starter="—"
+                  pro="—"
+                  ent
+                />
+                <Row
+                  label={isHR ? "Više timova" : "Multiple teams"}
+                  starter="—"
+                  pro="—"
+                  ent
+                />
               </tbody>
             </table>
           </div>
@@ -240,7 +248,7 @@ export default async function Pricing({
             <div className="flex gap-3">
               <Link
                 href={`${base}/contact`}
-                className="rounded-xl border bg-background/40 px-4 py-2 text-sm font-semibold text-foreground hover:bg-background"
+                className="rounded-xl border bg-background/40 px-4 py-2 text-sm font-semibold text-foreground hover:bg-background/60"
               >
                 {t.ent.cta}
               </Link>
@@ -292,7 +300,8 @@ function PlanCard({
   return (
     <div
       className={[
-        "relative overflow-hidden rounded-3xl border bg-background/70 p-6 shadow-sm backdrop-blur",
+        // ✅ glass card so global glow is still visible
+        "relative overflow-hidden rounded-3xl border bg-background/55 p-6 shadow-sm backdrop-blur",
         highlight
           ? "border-foreground/15 shadow-[0_1px_0_rgba(255,255,255,0.04),0_22px_70px_-35px_rgba(34,197,94,0.35)]"
           : "border-border",
@@ -309,7 +318,9 @@ function PlanCard({
 
       <div className="mt-6 flex items-baseline gap-2">
         <div className="text-4xl font-semibold tracking-tight">{price}</div>
-        {cadence ? <div className="text-sm text-muted-foreground">{cadence}</div> : null}
+        {cadence ? (
+          <div className="text-sm text-muted-foreground">{cadence}</div>
+        ) : null}
       </div>
 
       <div className="mt-6">
@@ -318,16 +329,18 @@ function PlanCard({
           className={[
             "block w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition",
             variant === "secondary"
-              ? "border bg-background/40 text-foreground hover:bg-background"
+              ? "border bg-background/40 text-foreground hover:bg-background/60"
               : highlight
                 ? "bg-foreground text-background hover:opacity-90"
-                : "border bg-background/40 text-foreground hover:bg-background",
+                : "border bg-background/40 text-foreground hover:bg-background/60",
           ].join(" ")}
         >
           {ctaLabel}
         </Link>
 
-        <p className="mt-2 text-center text-xs text-muted-foreground">{footer}</p>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          {footer}
+        </p>
       </div>
 
       <div className="mt-6 border-t border-border pt-6">
@@ -335,7 +348,13 @@ function PlanCard({
           {bullets.map((f) => (
             <li key={f} className="flex items-start gap-3">
               <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted/60 ring-1 ring-border">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
                   <path
                     d="M20 6L9 17l-5-5"
                     stroke="currentColor"
@@ -377,7 +396,8 @@ function Row({
 
 function renderCell(val?: string | boolean) {
   if (val === true) return <Check />;
-  if (val === false) return <span className="text-muted-foreground/60">—</span>;
+  if (val === false)
+    return <span className="text-muted-foreground/60">—</span>;
   if (!val) return <span className="text-muted-foreground/60">—</span>;
   return <span>{val}</span>;
 }
@@ -386,7 +406,13 @@ function Check() {
   return (
     <span className="inline-flex items-center">
       <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted/60 ring-1 ring-border">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+        <svg
+          width="12"
+          height="12"
+          viewBox="0 0 24 24"
+          fill="none"
+          aria-hidden="true"
+        >
           <path
             d="M20 6L9 17l-5-5"
             stroke="currentColor"
@@ -403,12 +429,16 @@ function Check() {
 
 function Faq({ q, a }: { q: string; a: string }) {
   return (
-    <details className="group rounded-2xl border bg-background/70 p-5 shadow-sm backdrop-blur">
+    <details className="group rounded-2xl border bg-background/55 p-5 shadow-sm backdrop-blur">
       <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold">
         <span>{q}</span>
-        <span className="text-muted-foreground transition group-open:rotate-45">+</span>
+        <span className="text-muted-foreground transition group-open:rotate-45">
+          +
+        </span>
       </summary>
-      <div className="mt-3 text-sm leading-relaxed text-muted-foreground">{a}</div>
+      <div className="mt-3 text-sm leading-relaxed text-muted-foreground">
+        {a}
+      </div>
     </details>
   );
 }
