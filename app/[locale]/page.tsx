@@ -16,12 +16,12 @@ export default async function Landing({
   const copy = isHR
     ? {
         badge: "Za apartmane • hotele • restorane",
-        h1: "AI WhatsApp asistent koji odgovara gostima 24/7",
-        p: "Automatski odgovara na najčešća pitanja na jeziku gosta. Kad nije siguran — odmah proslijedi domaćinu emailom.",
-        cta1: "Pokreni besplatno",
+        h1: "Gostly — pametni WhatsApp asistent za iznajmljivače",
+        p: "Odgovara gostima 24/7 na najčešća pitanja, smanjuje broj poruka prema domaćinu i osigurava da se svaki važan upit automatski proslijedi kada je potrebna ljudska intervencija.",
+        cta1: "Isprobaj odmah",
         cta2: "Pogledaj cijene",
-        proof: ["Bez kartice", "Postavljanje 5 min", "Siguran handoff"],
-        featuresTitle: "Što dobivaš",
+        proof: ["Brzo postavljanje [5 min]", "Jednostavno sučelje", "Siguran i pouzdan handoff"],
+        featuresTitle: "Što dobivaš?",
         features: [
           {
             title: "Odgovori 24/7",
@@ -29,28 +29,28 @@ export default async function Landing({
           },
           {
             title: "Bilingvalno + auto jezik",
-            desc: "Odgovara na jeziku gosta bez dodatnog podešavanja.",
+            desc: "Odgovara na 100+ jezika, u jeziku gosta bez dodatnog rada.",
           },
           {
             title: "Handoff domaćinu",
             desc: "Ako nema podatak, ne izmišlja — pošalje tebi upit na email.",
           },
           {
-            title: "Logovi i uvid",
-            desc: "Sve poruke se spremaju da vidiš što gosti najčešće pitaju.",
+            title: "Analitika i uvidi",
+            desc: "Sve poruke se spremaju da vidiš što gosti najčešće pitaju. Dajemo ti ideje za poboljšanje informacija i FAQ-a.",
           },
         ],
         howTitle: "Kako radi",
         steps: [
           { title: "Uneseš informacije", desc: "Check-in/out, parking, Wi-Fi, pravila, FAQ." },
           { title: "Gosti šalju poruke", desc: "WhatsApp upiti dolaze automatski u sustav." },
-          { title: "Bot odgovara ili prosljeđuje", desc: "Siguran odgovor ili handoff domaćinu." },
+          { title: "Gostly odgovara ili prosljeđuje domaćinu", desc: "Gostly šalje odgovor ili prosljeđuje domaćinu." },
         ],
         demoTitle: "Brzi demo",
         demoQ: "TEST1: Imate li parking?",
         demoA: "Da — besplatan parking je dostupan ispred objekta.",
-        finalTitle: "Spremno za prve korisnike",
-        finalP: "Pokreni besplatno i testiraj s 1 objektom. Kad budeš spreman, prebacimo na produkciju.",
+        finalTitle: "Kreni odmah sa svojim prvim korisnicima",
+        finalP: "Nisi siguran? Isprobaj besplatno s jednim objektom i 100 poruka mjesečno. Kada budeš spreman, uvijek možeš nadograditi svoj plan.",
         finalCta: "Kreni sada",
       }
     : {
@@ -85,10 +85,22 @@ export default async function Landing({
     <div className="space-y-16">
       {/* HERO */}
       <section className="relative overflow-hidden rounded-3xl border bg-background">
+        {/* Stripe-like glow background */}
+        <div className="pointer-events-none absolute inset-0 -z-10">
+          <div className="absolute -top-28 left-1/2 h-80 w-[60rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.16),transparent_60%)]" />
+          <div className="absolute -bottom-32 right-[-10rem] h-80 w-[34rem] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.14),transparent_60%)]" />
+          <div className="absolute -bottom-24 left-[-8rem] h-72 w-[28rem] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.10),transparent_62%)]" />
+        </div>
+
         <div className="absolute inset-0 -z-10 bg-gradient-to-b from-muted/60 to-background" />
+
         <div className="grid gap-10 p-8 md:grid-cols-2 md:p-12">
           <div className="space-y-6">
-            <Badge variant="secondary" className="w-fit">
+            {/* Slightly “whatsapp” accent via ring */}
+            <Badge
+              variant="secondary"
+              className="w-fit border border-foreground/5 bg-muted/60"
+            >
               {copy.badge}
             </Badge>
 
@@ -102,18 +114,31 @@ export default async function Landing({
 
             <div className="flex flex-wrap gap-2">
               {copy.proof.map((item) => (
-                <Badge key={item} variant="outline">
+                <Badge
+                  key={item}
+                  variant="outline"
+                  className="border-foreground/10 bg-background/40"
+                >
                   {item}
                 </Badge>
               ))}
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">
-              <Button asChild size="lg" className="rounded-2xl">
+              <Button
+                asChild
+                size="lg"
+                className="rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+              >
                 <Link href={`/${locale}/signup`}>{copy.cta1}</Link>
               </Button>
 
-              <Button asChild size="lg" variant="outline" className="rounded-2xl">
+              <Button
+                asChild
+                size="lg"
+                variant="outline"
+                className="rounded-2xl border-foreground/10 bg-background/40 hover:bg-background"
+              >
                 <Link href={`/${locale}/pricing`}>{copy.cta2}</Link>
               </Button>
             </div>
@@ -121,12 +146,18 @@ export default async function Landing({
 
           {/* RIGHT: Demo card */}
           <div className="flex items-center">
-            <Card className="w-full rounded-3xl">
+            <Card className="relative w-full rounded-3xl border-foreground/10 bg-background/70 backdrop-blur">
+              {/* card glow */}
+              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
+                <div className="absolute -top-24 left-1/2 h-64 w-[40rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.14),transparent_60%)]" />
+                <div className="absolute -bottom-28 right-[-8rem] h-64 w-80 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.12),transparent_60%)]" />
+              </div>
+
               <CardHeader>
                 <CardTitle className="text-base">{copy.demoTitle}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                  <DemoRotator isHR={isHR} intervalMs={3500} code="TEST1" />
+                <DemoRotator isHR={isHR} intervalMs={3500} code="TEST1" />
               </CardContent>
             </Card>
           </div>
@@ -148,7 +179,15 @@ export default async function Landing({
 
         <div className="grid gap-4 md:grid-cols-2">
           {copy.features.map((f) => (
-            <Card key={f.title} className="rounded-3xl">
+            <Card
+              key={f.title}
+              className="relative rounded-3xl border-foreground/10 bg-background/70 backdrop-blur transition-shadow hover:shadow-md"
+            >
+              {/* subtle per-card glow */}
+              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
+                <div className="absolute -top-24 left-1/2 h-56 w-[36rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.10),transparent_60%)]" />
+              </div>
+
               <CardHeader>
                 <CardTitle className="text-lg">{f.title}</CardTitle>
               </CardHeader>
@@ -170,9 +209,19 @@ export default async function Landing({
 
         <div className="grid gap-4 md:grid-cols-3">
           {copy.steps.map((s, idx) => (
-            <Card key={s.title} className="rounded-3xl">
+            <Card
+              key={s.title}
+              className="relative rounded-3xl border-foreground/10 bg-background/70 backdrop-blur transition-shadow hover:shadow-md"
+            >
+              <div className="pointer-events-none absolute inset-0 overflow-hidden rounded-3xl">
+                <div className="absolute -top-24 left-1/2 h-56 w-[30rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.10),transparent_62%)]" />
+              </div>
+
               <CardHeader className="space-y-3">
-                <Badge variant="secondary" className="w-fit">
+                <Badge
+                  variant="secondary"
+                  className="w-fit border border-foreground/5 bg-muted/60"
+                >
                   {isHR ? `Korak ${idx + 1}` : `Step ${idx + 1}`}
                 </Badge>
                 <CardTitle className="text-lg">{s.title}</CardTitle>
@@ -186,7 +235,13 @@ export default async function Landing({
       </section>
 
       {/* FINAL CTA */}
-      <section className="rounded-3xl border bg-muted/30 p-8 md:p-12">
+      <section className="relative overflow-hidden rounded-3xl border bg-muted/30 p-8 md:p-12">
+        {/* CTA glow */}
+        <div className="pointer-events-none absolute inset-0">
+          <div className="absolute -top-24 left-1/2 h-72 w-[56rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.14),transparent_60%)]" />
+          <div className="absolute -bottom-28 right-[-8rem] h-72 w-96 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.12),transparent_60%)]" />
+        </div>
+
         <div className="grid gap-6 md:grid-cols-2 md:items-center">
           <div className="space-y-2">
             <h3 className="text-2xl font-semibold tracking-tight">
@@ -196,10 +251,19 @@ export default async function Landing({
           </div>
 
           <div className="flex gap-3 md:justify-end">
-            <Button asChild size="lg" className="rounded-2xl">
+            <Button
+              asChild
+              size="lg"
+              className="rounded-2xl shadow-sm hover:shadow-md transition-shadow"
+            >
               <Link href={`/${locale}/signup`}>{copy.finalCta}</Link>
             </Button>
-            <Button asChild size="lg" variant="outline" className="rounded-2xl">
+            <Button
+              asChild
+              size="lg"
+              variant="outline"
+              className="rounded-2xl border-foreground/10 bg-background/40 hover:bg-background"
+            >
               <Link href={`/${locale}/pricing`}>{isHR ? "Cijene" : "Pricing"}</Link>
             </Button>
           </div>

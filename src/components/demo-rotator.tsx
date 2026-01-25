@@ -6,7 +6,7 @@ type DemoItem = { q: string; a: string };
 
 export function DemoRotator({
   isHR,
-  intervalMs = 3500,
+  intervalMs = 7000,
   code = "TEST1",
 }: {
   isHR: boolean;
@@ -60,7 +60,7 @@ export function DemoRotator({
 
       <div className="rounded-2xl border bg-background p-4">
         <div className="text-xs text-muted-foreground">
-          {isHR ? "Odgovor bota" : "Bot reply"}
+          {isHR ? "Gostly" : "Bot reply"}
         </div>
         <div
           key={`a-${animKey}`}
