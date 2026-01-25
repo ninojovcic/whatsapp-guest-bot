@@ -3,6 +3,7 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
+import { DemoRotator } from "@/components/demo-rotator";
 
 export default async function Landing({
   params,
@@ -125,27 +126,7 @@ export default async function Landing({
                 <CardTitle className="text-base">{copy.demoTitle}</CardTitle>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="rounded-2xl border bg-muted/40 p-4">
-                  <div className="text-xs text-muted-foreground">
-                    {isHR ? "Upit gosta" : "Guest message"}
-                  </div>
-                  <div className="mt-1 font-medium">{copy.demoQ}</div>
-                </div>
-
-                <div className="rounded-2xl border bg-background p-4">
-                  <div className="text-xs text-muted-foreground">
-                    {isHR ? "Odgovor bota" : "Bot reply"}
-                  </div>
-                  <div className="mt-1 font-medium">{copy.demoA}</div>
-                </div>
-
-                <Separator />
-
-                <div className="text-sm text-muted-foreground">
-                  {isHR
-                    ? "U produkciji se property kod uklanja—gost samo piše na WhatsApp."
-                    : "In production the property code goes away—guests just message WhatsApp normally."}
-                </div>
+                  <DemoRotator isHR={isHR} intervalMs={3500} code="TEST1" />
               </CardContent>
             </Card>
           </div>
