@@ -134,10 +134,15 @@ export default async function Landing({
         <div className="absolute bottom-[-55%] left-1/2 h-[980px] w-[1400px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.18),transparent_66%)] blur-3xl" />
 
         {/* vignette for premium depth */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.55)_78%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_12%,rgba(0,0,0,0.65)_78%)]" />
 
         {/* subtle grain */}
         <div className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:18px_18px]" />
+
+        {/* ✅ bottom fade da se ne vidi “zeleni toolbar” na dnu */}
+        <div className="absolute inset-0 bg-gradient-to-b from-transparent via-transparent to-black/70" />
+
+        <div className="absolute inset-0 bg-gradient-to-t from-transparent via-transparent to-black/35" />
       </div>
 
       {/* HERO */}
