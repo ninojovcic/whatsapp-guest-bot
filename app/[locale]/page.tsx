@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
 import { DemoRotator } from "@/components/demo-rotator";
 
 export default async function Landing({
@@ -19,44 +20,19 @@ export default async function Landing({
         p: "Odgovara gostima 24/7 na najčešća pitanja, smanjuje broj poruka prema domaćinu i osigurava da se svaki važan upit automatski proslijedi kada je potrebna ljudska intervencija.",
         cta1: "Isprobaj odmah",
         cta2: "Pogledaj cijene",
-        proof: [
-          "Brzo postavljanje [5 min]",
-          "Jednostavno sučelje",
-          "Siguran i pouzdan handoff",
-        ],
+        proof: ["Brzo postavljanje [5 min]", "Jednostavno sučelje", "Siguran i pouzdan handoff"],
         featuresTitle: "Što dobivaš?",
         features: [
-          {
-            title: "Odgovori 24/7",
-            desc: "Gosti dobiju odgovor odmah, i kad ti spavaš ili radiš.",
-          },
-          {
-            title: "Bilingvalno + auto jezik",
-            desc: "Odgovara na 100+ jezika, u jeziku gosta bez dodatnog rada.",
-          },
-          {
-            title: "Handoff domaćinu",
-            desc: "Ako nema podatak, ne izmišlja — pošalje tebi upit na email.",
-          },
-          {
-            title: "Analitika i uvidi",
-            desc: "Sve poruke se spremaju da vidiš što gosti najčešće pitaju. Dajemo ti ideje za poboljšanje informacija i FAQ-a.",
-          },
+          { title: "Odgovori 24/7", desc: "Gosti dobiju odgovor odmah, i kad ti spavaš ili radiš." },
+          { title: "Bilingvalno + auto jezik", desc: "Odgovara na 100+ jezika, u jeziku gosta bez dodatnog rada." },
+          { title: "Handoff domaćinu", desc: "Ako nema podatak, ne izmišlja — pošalje tebi upit na email." },
+          { title: "Analitika i uvidi", desc: "Sve poruke se spremaju da vidiš što gosti najčešće pitaju. Dajemo ti ideje za poboljšanje informacija i FAQ-a." },
         ],
         howTitle: "Kako radi",
         steps: [
-          {
-            title: "Uneseš informacije",
-            desc: "Check-in/out, parking, Wi-Fi, pravila, FAQ.",
-          },
-          {
-            title: "Gosti šalju poruke",
-            desc: "WhatsApp upiti dolaze automatski u sustav.",
-          },
-          {
-            title: "Gostly odgovara ili prosljeđuje domaćinu",
-            desc: "Gostly šalje odgovor ili prosljeđuje domaćinu.",
-          },
+          { title: "Uneseš informacije", desc: "Check-in/out, parking, Wi-Fi, pravila, FAQ." },
+          { title: "Gosti šalju poruke", desc: "WhatsApp upiti dolaze automatski u sustav." },
+          { title: "Gostly odgovara ili prosljeđuje domaćinu", desc: "Gostly šalje odgovor ili prosljeđuje domaćinu." },
         ],
         demoTitle: "Brzi demo",
         demoQ: "TEST1: Imate li parking?",
@@ -74,37 +50,16 @@ export default async function Landing({
         proof: ["No card", "5-min setup", "Safe handoff"],
         featuresTitle: "What you get",
         features: [
-          {
-            title: "Replies 24/7",
-            desc: "Guests get answers instantly—even when you’re offline.",
-          },
-          {
-            title: "Bilingual + auto language",
-            desc: "Replies in the guest’s language without extra work.",
-          },
-          {
-            title: "Human handoff",
-            desc: "If info is missing, it doesn’t guess—it emails the host.",
-          },
-          {
-            title: "Logs & insights",
-            desc: "Messages are saved so you can improve your info and FAQs.",
-          },
+          { title: "Replies 24/7", desc: "Guests get answers instantly—even when you’re offline." },
+          { title: "Bilingual + auto language", desc: "Replies in the guest’s language without extra work." },
+          { title: "Human handoff", desc: "If info is missing, it doesn’t guess—it emails the host." },
+          { title: "Logs & insights", desc: "Messages are saved so you can improve your info and FAQs." },
         ],
         howTitle: "How it works",
         steps: [
-          {
-            title: "Add your info",
-            desc: "Check-in/out, parking, Wi-Fi, rules, FAQs.",
-          },
-          {
-            title: "Guests message you",
-            desc: "WhatsApp questions flow into the system.",
-          },
-          {
-            title: "Bot answers or escalates",
-            desc: "Safe answer or instant handoff to host.",
-          },
+          { title: "Add your info", desc: "Check-in/out, parking, Wi-Fi, rules, FAQs." },
+          { title: "Guests message you", desc: "WhatsApp questions flow into the system." },
+          { title: "Bot answers or escalates", desc: "Safe answer or instant handoff to host." },
         ],
         demoTitle: "Quick demo",
         demoQ: "TEST1: Do you have parking?",
@@ -116,35 +71,29 @@ export default async function Landing({
 
   return (
     <div className="relative space-y-16 overflow-hidden">
-      {/* ✅ FULL-VIEWPORT glow (not limited to container width) */}
-      <div className="pointer-events-none fixed inset-0 -z-10">
-        {/* base dark wash */}
-        <div className="absolute inset-0 bg-background" />
+      {/* ✅ Full-page WhatsApp glow (continuous) */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        {/* soft base wash */}
+        <div className="absolute inset-0 bg-gradient-to-b from-background via-background to-background" />
 
-        {/* big soft orbs across entire page */}
-        <div className="absolute -top-[520px] left-1/2 h-[980px] w-[1400px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.26),transparent_62%)] blur-3xl" />
-        <div className="absolute top-[6%] right-[-40%] h-[980px] w-[980px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.22),transparent_64%)] blur-3xl" />
-        <div className="absolute top-[28%] left-[-40%] h-[980px] w-[980px] rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.20),transparent_65%)] blur-3xl" />
+        {/* big glows */}
+        <div className="absolute -top-[520px] left-1/2 h-[900px] w-[1200px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.22),transparent_62%)] blur-2xl" />
+        <div className="absolute top-[10%] right-[-35%] h-[900px] w-[900px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.18),transparent_64%)] blur-2xl" />
+        <div className="absolute top-[42%] left-[-35%] h-[900px] w-[900px] rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.16),transparent_65%)] blur-2xl" />
+        <div className="absolute bottom-[-45%] left-1/2 h-[900px] w-[1200px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.14),transparent_66%)] blur-2xl" />
 
-        {/* mid-page extra glow so it stays strong while scrolling */}
-        <div className="absolute top-[55%] left-1/2 h-[880px] w-[1200px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.18),transparent_66%)] blur-3xl" />
-        <div className="absolute top-[68%] right-[-35%] h-[900px] w-[900px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.16),transparent_66%)] blur-3xl" />
+        {/* subtle vignette for dark look */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.35)_80%)]" />
 
-        {/* vignette for premium depth */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_12%,rgba(0,0,0,0.65)_100%)]" />
-
-        {/* subtle grain */}
-        <div className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:18px_18px]" />
+        {/* optional “grain” overlay (no images) */}
+        <div className="absolute inset-0 opacity-[0.08] [background-image:radial-gradient(rgba(255,255,255,0.25)_1px,transparent_1px)] [background-size:18px_18px]" />
       </div>
 
       {/* HERO */}
       <section className="relative overflow-hidden rounded-3xl border bg-background/70 backdrop-blur">
         <div className="grid gap-10 p-8 md:grid-cols-2 md:p-12">
           <div className="space-y-6">
-            <Badge
-              variant="secondary"
-              className="w-fit border border-foreground/10 bg-muted/50"
-            >
+            <Badge variant="secondary" className="w-fit border border-foreground/10 bg-muted/50">
               {copy.badge}
             </Badge>
 
@@ -158,22 +107,14 @@ export default async function Landing({
 
             <div className="flex flex-wrap gap-2">
               {copy.proof.map((item) => (
-                <Badge
-                  key={item}
-                  variant="outline"
-                  className="border-foreground/15 bg-background/40"
-                >
+                <Badge key={item} variant="outline" className="border-foreground/15 bg-background/40">
                   {item}
                 </Badge>
               ))}
             </div>
 
             <div className="flex flex-wrap gap-3 pt-2">
-              <Button
-                asChild
-                size="lg"
-                className="rounded-2xl shadow-sm transition-shadow hover:shadow-md"
-              >
+              <Button asChild size="lg" className="rounded-2xl shadow-sm transition-shadow hover:shadow-md">
                 <Link href={`/${locale}/signup`}>{copy.cta1}</Link>
               </Button>
 
@@ -209,9 +150,7 @@ export default async function Landing({
             {copy.featuresTitle}
           </h2>
           <p className="text-muted-foreground">
-            {isHR
-              ? "Dizajnirano za turizam: brzo, jednostavno i sigurno."
-              : "Built for tourism: fast, simple, and safe."}
+            {isHR ? "Dizajnirano za turizam: brzo, jednostavno i sigurno." : "Built for tourism: fast, simple, and safe."}
           </p>
         </div>
 
@@ -247,10 +186,7 @@ export default async function Landing({
               className="rounded-3xl border bg-background/70 backdrop-blur transition-shadow hover:shadow-md"
             >
               <CardHeader className="space-y-3">
-                <Badge
-                  variant="secondary"
-                  className="w-fit border border-foreground/10 bg-muted/50"
-                >
+                <Badge variant="secondary" className="w-fit border border-foreground/10 bg-muted/50">
                   {isHR ? `Korak ${idx + 1}` : `Step ${idx + 1}`}
                 </Badge>
                 <CardTitle className="text-lg">{s.title}</CardTitle>
@@ -267,18 +203,12 @@ export default async function Landing({
       <section className="rounded-3xl border bg-muted/30 p-8 md:p-12">
         <div className="grid gap-6 md:grid-cols-2 md:items-center">
           <div className="space-y-2">
-            <h3 className="text-2xl font-semibold tracking-tight">
-              {copy.finalTitle}
-            </h3>
+            <h3 className="text-2xl font-semibold tracking-tight">{copy.finalTitle}</h3>
             <p className="text-muted-foreground">{copy.finalP}</p>
           </div>
 
           <div className="flex gap-3 md:justify-end">
-            <Button
-              asChild
-              size="lg"
-              className="rounded-2xl shadow-sm transition-shadow hover:shadow-md"
-            >
+            <Button asChild size="lg" className="rounded-2xl shadow-sm transition-shadow hover:shadow-md">
               <Link href={`/${locale}/signup`}>{copy.finalCta}</Link>
             </Button>
             <Button
@@ -287,9 +217,7 @@ export default async function Landing({
               variant="outline"
               className="rounded-2xl border-foreground/15 bg-background/40 hover:bg-background"
             >
-              <Link href={`/${locale}/pricing`}>
-                {isHR ? "Cijene" : "Pricing"}
-              </Link>
+              <Link href={`/${locale}/pricing`}>{isHR ? "Cijene" : "Pricing"}</Link>
             </Button>
           </div>
         </div>
