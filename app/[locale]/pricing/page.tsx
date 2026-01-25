@@ -16,8 +16,7 @@ export default async function Pricing({
   const t = isHR
     ? {
         title: "Cijene",
-        subtitle:
-          "Kreni jednostavno, nadogradi kad ti treba. Jasno, bez sitnih slova.",
+        subtitle: "Kreni jednostavno, nadogradi kad ti treba. Jasno, bez sitnih slova.",
         note: "Cijene su u EUR. Možeš otkazati bilo kada.",
         badgeTop: "Transparentno i jednostavno",
         starter: {
@@ -60,8 +59,7 @@ export default async function Pricing({
       }
     : {
         title: "Pricing",
-        subtitle:
-          "Start simple, upgrade when you need more. Clear, no fine print.",
+        subtitle: "Start simple, upgrade when you need more. Clear, no fine print.",
         note: "Prices in EUR. Cancel anytime.",
         badgeTop: "Transparent and simple",
         starter: {
@@ -104,18 +102,27 @@ export default async function Pricing({
       };
 
   return (
-    <main className="bg-white text-zinc-950">
+    <main className="relative overflow-hidden bg-background text-foreground">
+      {/* Page glow (global) */}
+      <div className="pointer-events-none absolute inset-0 -z-10">
+        <div className="absolute -top-[520px] left-1/2 h-[900px] w-[1200px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.22),transparent_62%)] blur-2xl" />
+        <div className="absolute top-[10%] right-[-35%] h-[900px] w-[900px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.18),transparent_64%)] blur-2xl" />
+        <div className="absolute top-[42%] left-[-35%] h-[900px] w-[900px] rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.16),transparent_65%)] blur-2xl" />
+        <div className="absolute bottom-[-45%] left-1/2 h-[900px] w-[1200px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.14),transparent_66%)] blur-2xl" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_20%,rgba(0,0,0,0.35)_80%)]" />
+      </div>
+
       {/* Global container */}
       <div className="mx-auto w-full max-w-6xl px-6 py-12 md:py-16">
         {/* Header */}
-        <div className="relative overflow-hidden rounded-3xl border border-zinc-200 bg-white p-8 shadow-sm">
+        <div className="relative overflow-hidden rounded-3xl border bg-background/70 p-8 shadow-sm backdrop-blur">
           <div className="pointer-events-none absolute inset-0">
-            <div className="absolute -top-24 left-1/2 h-72 w-[56rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.14),transparent_60%)]" />
+            <div className="absolute -top-24 left-1/2 h-72 w-[56rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.16),transparent_60%)]" />
             <div className="absolute -bottom-28 right-[-8rem] h-72 w-96 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.12),transparent_60%)]" />
           </div>
 
           <div className="relative max-w-2xl">
-            <div className="inline-flex items-center gap-2 rounded-full border border-zinc-200 bg-white px-3 py-1 text-xs text-zinc-600">
+            <div className="inline-flex items-center gap-2 rounded-full border bg-background/60 px-3 py-1 text-xs text-muted-foreground">
               <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" />
               {t.badgeTop}
             </div>
@@ -124,11 +131,11 @@ export default async function Pricing({
               {t.title}
             </h1>
 
-            <p className="mt-3 text-base leading-relaxed text-zinc-600 md:text-lg">
+            <p className="mt-3 text-base leading-relaxed text-muted-foreground md:text-lg">
               {t.subtitle}
             </p>
 
-            <p className="mt-3 text-xs text-zinc-500">{t.note}</p>
+            <p className="mt-3 text-xs text-muted-foreground/80">{t.note}</p>
           </div>
         </div>
 
@@ -172,28 +179,26 @@ export default async function Pricing({
         </div>
 
         {/* Comparison */}
-        <div className="mt-10 overflow-hidden rounded-3xl border border-zinc-200 bg-white shadow-sm">
+        <div className="mt-10 overflow-hidden rounded-3xl border bg-background/70 shadow-sm backdrop-blur">
           <div className="p-6">
-            <h2 className="text-xl font-semibold tracking-tight">
-              {t.compareTitle}
-            </h2>
-            <p className="mt-1 text-sm text-zinc-600">{t.compareSubtitle}</p>
+            <h2 className="text-xl font-semibold tracking-tight">{t.compareTitle}</h2>
+            <p className="mt-1 text-sm text-muted-foreground">{t.compareSubtitle}</p>
           </div>
 
-          <div className="overflow-x-auto border-t border-zinc-200">
+          <div className="overflow-x-auto border-t">
             <table className="min-w-[780px] w-full border-collapse">
               <thead>
-                <tr className="border-b border-zinc-200 bg-zinc-50">
-                  <th className="px-6 py-4 text-left text-xs font-semibold tracking-wide text-zinc-600">
+                <tr className="border-b bg-muted/40">
+                  <th className="px-6 py-4 text-left text-xs font-semibold tracking-wide text-muted-foreground">
                     {t.featuresCol}
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold tracking-wide text-zinc-600">
+                  <th className="px-6 py-4 text-left text-xs font-semibold tracking-wide text-muted-foreground">
                     {t.starter.name}
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold tracking-wide text-zinc-600">
+                  <th className="px-6 py-4 text-left text-xs font-semibold tracking-wide text-muted-foreground">
                     {t.pro.name}
                   </th>
-                  <th className="px-6 py-4 text-left text-xs font-semibold tracking-wide text-zinc-600">
+                  <th className="px-6 py-4 text-left text-xs font-semibold tracking-wide text-muted-foreground">
                     {t.ent.name}
                   </th>
                 </tr>
@@ -205,12 +210,7 @@ export default async function Pricing({
                   pro={isHR ? "Do 3" : "Up to 3"}
                   ent={isHR ? "Po dogovoru" : "Custom"}
                 />
-                <Row
-                  label={isHR ? "AI odgovori + handoff" : "AI replies + handoff"}
-                  starter
-                  pro
-                  ent
-                />
+                <Row label={isHR ? "AI odgovori + handoff" : "AI replies + handoff"} starter pro ent />
                 <Row
                   label={isHR ? "Analitika" : "Analytics"}
                   starter={isHR ? "Osnovna" : "Basic"}
@@ -229,34 +229,24 @@ export default async function Pricing({
                   pro={isHR ? "Prioritetna" : "Priority"}
                   ent="SLA"
                 />
-                <Row
-                  label={isHR ? "Integracije po mjeri" : "Custom integrations"}
-                  starter="—"
-                  pro="—"
-                  ent
-                />
-                <Row
-                  label={isHR ? "Više timova" : "Multiple teams"}
-                  starter="—"
-                  pro="—"
-                  ent
-                />
+                <Row label={isHR ? "Integracije po mjeri" : "Custom integrations"} starter="—" pro="—" ent />
+                <Row label={isHR ? "Više timova" : "Multiple teams"} starter="—" pro="—" ent />
               </tbody>
             </table>
           </div>
 
-          <div className="flex flex-col gap-3 border-t border-zinc-200 p-6 md:flex-row md:items-center md:justify-between">
-            <div className="text-sm text-zinc-600">{t.bottomText}</div>
+          <div className="flex flex-col gap-3 border-t p-6 md:flex-row md:items-center md:justify-between">
+            <div className="text-sm text-muted-foreground">{t.bottomText}</div>
             <div className="flex gap-3">
               <Link
                 href={`${base}/contact`}
-                className="rounded-xl border border-zinc-200 bg-white px-4 py-2 text-sm font-semibold text-zinc-900 hover:bg-zinc-50"
+                className="rounded-xl border bg-background/40 px-4 py-2 text-sm font-semibold text-foreground hover:bg-background"
               >
                 {t.ent.cta}
               </Link>
               <Link
                 href={`${base}/signup`}
-                className="rounded-xl bg-zinc-900 px-4 py-2 text-sm font-semibold text-white hover:bg-zinc-800"
+                className="rounded-xl bg-foreground px-4 py-2 text-sm font-semibold text-background hover:opacity-90"
               >
                 {t.startFree}
               </Link>
@@ -302,28 +292,24 @@ function PlanCard({
   return (
     <div
       className={[
-        "relative overflow-hidden rounded-3xl border bg-white p-6 shadow-sm",
+        "relative overflow-hidden rounded-3xl border bg-background/70 p-6 shadow-sm backdrop-blur",
         highlight
-          ? "border-zinc-300 shadow-[0_1px_0_rgba(0,0,0,0.06),0_20px_60px_-30px_rgba(99,102,241,0.35)]"
-          : "border-zinc-200",
+          ? "border-foreground/15 shadow-[0_1px_0_rgba(255,255,255,0.04),0_22px_70px_-35px_rgba(34,197,94,0.35)]"
+          : "border-border",
       ].join(" ")}
     >
       {badge && (
-        <div className="absolute top-4 right-4 rounded-full bg-zinc-900 px-2.5 py-1 text-[11px] font-semibold text-white">
+        <div className="absolute top-4 right-4 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-background">
           {badge}
         </div>
       )}
 
-      <h3 className="text-lg font-semibold tracking-tight text-zinc-950">
-        {name}
-      </h3>
-      <p className="mt-1 text-sm text-zinc-600">{desc}</p>
+      <h3 className="text-lg font-semibold tracking-tight">{name}</h3>
+      <p className="mt-1 text-sm text-muted-foreground">{desc}</p>
 
       <div className="mt-6 flex items-baseline gap-2">
-        <div className="text-4xl font-semibold tracking-tight text-zinc-950">
-          {price}
-        </div>
-        {cadence ? <div className="text-sm text-zinc-500">{cadence}</div> : null}
+        <div className="text-4xl font-semibold tracking-tight">{price}</div>
+        {cadence ? <div className="text-sm text-muted-foreground">{cadence}</div> : null}
       </div>
 
       <div className="mt-6">
@@ -332,23 +318,23 @@ function PlanCard({
           className={[
             "block w-full rounded-xl px-4 py-2.5 text-center text-sm font-semibold transition",
             variant === "secondary"
-              ? "border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50"
+              ? "border bg-background/40 text-foreground hover:bg-background"
               : highlight
-                ? "bg-zinc-900 text-white hover:bg-zinc-800"
-                : "border border-zinc-200 bg-white text-zinc-900 hover:bg-zinc-50",
+                ? "bg-foreground text-background hover:opacity-90"
+                : "border bg-background/40 text-foreground hover:bg-background",
           ].join(" ")}
         >
           {ctaLabel}
         </Link>
 
-        <p className="mt-2 text-center text-xs text-zinc-500">{footer}</p>
+        <p className="mt-2 text-center text-xs text-muted-foreground">{footer}</p>
       </div>
 
-      <div className="mt-6 border-t border-zinc-200 pt-6">
+      <div className="mt-6 border-t border-border pt-6">
         <ul className="space-y-3 text-sm">
           {bullets.map((f) => (
             <li key={f} className="flex items-start gap-3">
-              <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-zinc-100 ring-1 ring-zinc-200">
+              <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted/60 ring-1 ring-border">
                 <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path
                     d="M20 6L9 17l-5-5"
@@ -359,7 +345,7 @@ function PlanCard({
                   />
                 </svg>
               </span>
-              <span className="text-zinc-700">{f}</span>
+              <span className="text-muted-foreground">{f}</span>
             </li>
           ))}
         </ul>
@@ -380,26 +366,26 @@ function Row({
   ent?: string | boolean;
 }) {
   return (
-    <tr className="border-b border-zinc-200 last:border-b-0">
-      <td className="px-6 py-4 text-sm text-zinc-800">{label}</td>
-      <td className="px-6 py-4 text-sm text-zinc-700">{renderCell(starter)}</td>
-      <td className="px-6 py-4 text-sm text-zinc-700">{renderCell(pro)}</td>
-      <td className="px-6 py-4 text-sm text-zinc-700">{renderCell(ent)}</td>
+    <tr className="border-b last:border-b-0">
+      <td className="px-6 py-4 text-sm text-muted-foreground">{label}</td>
+      <td className="px-6 py-4 text-sm">{renderCell(starter)}</td>
+      <td className="px-6 py-4 text-sm">{renderCell(pro)}</td>
+      <td className="px-6 py-4 text-sm">{renderCell(ent)}</td>
     </tr>
   );
 }
 
 function renderCell(val?: string | boolean) {
   if (val === true) return <Check />;
-  if (val === false) return <span className="text-zinc-400">—</span>;
-  if (!val) return <span className="text-zinc-400">—</span>;
+  if (val === false) return <span className="text-muted-foreground/60">—</span>;
+  if (!val) return <span className="text-muted-foreground/60">—</span>;
   return <span>{val}</span>;
 }
 
 function Check() {
   return (
     <span className="inline-flex items-center">
-      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-zinc-100 ring-1 ring-zinc-200">
+      <span className="inline-flex h-6 w-6 items-center justify-center rounded-full bg-muted/60 ring-1 ring-border">
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
           <path
             d="M20 6L9 17l-5-5"
@@ -417,12 +403,12 @@ function Check() {
 
 function Faq({ q, a }: { q: string; a: string }) {
   return (
-    <details className="group rounded-2xl border border-zinc-200 bg-white p-5 shadow-sm">
-      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold text-zinc-900">
+    <details className="group rounded-2xl border bg-background/70 p-5 shadow-sm backdrop-blur">
+      <summary className="flex cursor-pointer list-none items-center justify-between gap-3 text-sm font-semibold">
         <span>{q}</span>
-        <span className="text-zinc-500 transition group-open:rotate-45">+</span>
+        <span className="text-muted-foreground transition group-open:rotate-45">+</span>
       </summary>
-      <div className="mt-3 text-sm leading-relaxed text-zinc-600">{a}</div>
+      <div className="mt-3 text-sm leading-relaxed text-muted-foreground">{a}</div>
     </details>
   );
 }

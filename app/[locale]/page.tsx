@@ -2,7 +2,6 @@ import Link from "next/link";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
 import { DemoRotator } from "@/components/demo-rotator";
 
 export default async function Landing({
@@ -116,23 +115,38 @@ export default async function Landing({
       };
 
   return (
-    <div className="relative space-y-16 overflow-hidden">
-      {/* ✅ Global WhatsApp-ish background glow (page-level) */}
-      <div className="pointer-events-none absolute inset-0 -z-10">
-        <div className="absolute -top-48 left-1/2 h-[600px] w-[900px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.18),transparent_60%)]" />
-        <div className="absolute top-[30%] right-[-20%] h-[500px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.14),transparent_60%)]" />
-        <div className="absolute bottom-[-30%] left-[-20%] h-[500px] w-[600px] rounded-full bg-[radial-gradient(circle,rgba(99,102,241,0.10),transparent_62%)]" />
+    <div className="relative space-y-16">
+      {/* ✅ FULL-VIEWPORT glow (not limited to container width) */}
+      <div className="pointer-events-none fixed inset-0 -z-10">
+        {/* base dark wash */}
+        <div className="absolute inset-0 bg-background" />
+
+        {/* big soft orbs across entire page */}
+        <div className="absolute -top-[520px] left-1/2 h-[980px] w-[1400px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.26),transparent_62%)] blur-3xl" />
+        <div className="absolute top-[6%] right-[-40%] h-[980px] w-[980px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.22),transparent_64%)] blur-3xl" />
+        <div className="absolute top-[28%] left-[-40%] h-[980px] w-[980px] rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.20),transparent_65%)] blur-3xl" />
+
+        {/* mid-page extra glow so it stays strong while scrolling */}
+        <div className="absolute top-[55%] left-1/2 h-[880px] w-[1200px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.18),transparent_66%)] blur-3xl" />
+        <div className="absolute top-[68%] right-[-35%] h-[900px] w-[900px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.16),transparent_66%)] blur-3xl" />
+
+        {/* bottom glow */}
+        <div className="absolute bottom-[-55%] left-1/2 h-[980px] w-[1400px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.18),transparent_66%)] blur-3xl" />
+
+        {/* vignette for premium depth */}
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_18%,rgba(0,0,0,0.55)_78%)]" />
+
+        {/* subtle grain */}
+        <div className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:18px_18px]" />
       </div>
 
       {/* HERO */}
-      <section className="relative overflow-hidden rounded-3xl border bg-background">
-        <div className="absolute inset-0 -z-10 bg-gradient-to-b from-muted/60 to-background" />
-
+      <section className="relative overflow-hidden rounded-3xl border bg-background/70 backdrop-blur">
         <div className="grid gap-10 p-8 md:grid-cols-2 md:p-12">
           <div className="space-y-6">
             <Badge
               variant="secondary"
-              className="w-fit border border-foreground/5 bg-muted/60"
+              className="w-fit border border-foreground/10 bg-muted/50"
             >
               {copy.badge}
             </Badge>
@@ -150,7 +164,7 @@ export default async function Landing({
                 <Badge
                   key={item}
                   variant="outline"
-                  className="border-foreground/10 bg-background/40"
+                  className="border-foreground/15 bg-background/40"
                 >
                   {item}
                 </Badge>
@@ -170,16 +184,16 @@ export default async function Landing({
                 asChild
                 size="lg"
                 variant="outline"
-                className="rounded-2xl border-foreground/10 bg-background/40 hover:bg-background"
+                className="rounded-2xl border-foreground/15 bg-background/40 hover:bg-background"
               >
                 <Link href={`/${locale}/pricing`}>{copy.cta2}</Link>
               </Button>
             </div>
           </div>
 
-          {/* RIGHT: Demo card (clean, no per-card glow) */}
+          {/* RIGHT: Demo card */}
           <div className="flex items-center">
-            <Card className="w-full rounded-3xl border bg-background transition-shadow hover:shadow-md">
+            <Card className="w-full rounded-3xl border bg-background/70 backdrop-blur transition-shadow hover:shadow-md">
               <CardHeader>
                 <CardTitle className="text-base">{copy.demoTitle}</CardTitle>
               </CardHeader>
@@ -208,7 +222,7 @@ export default async function Landing({
           {copy.features.map((f) => (
             <Card
               key={f.title}
-              className="rounded-3xl border bg-background transition-shadow hover:shadow-md"
+              className="rounded-3xl border bg-background/70 backdrop-blur transition-shadow hover:shadow-md"
             >
               <CardHeader>
                 <CardTitle className="text-lg">{f.title}</CardTitle>
@@ -233,12 +247,12 @@ export default async function Landing({
           {copy.steps.map((s, idx) => (
             <Card
               key={s.title}
-              className="rounded-3xl border bg-background transition-shadow hover:shadow-md"
+              className="rounded-3xl border bg-background/70 backdrop-blur transition-shadow hover:shadow-md"
             >
               <CardHeader className="space-y-3">
                 <Badge
                   variant="secondary"
-                  className="w-fit border border-foreground/5 bg-muted/60"
+                  className="w-fit border border-foreground/10 bg-muted/50"
                 >
                   {isHR ? `Korak ${idx + 1}` : `Step ${idx + 1}`}
                 </Badge>
@@ -274,9 +288,11 @@ export default async function Landing({
               asChild
               size="lg"
               variant="outline"
-              className="rounded-2xl border-foreground/10 bg-background/40 hover:bg-background"
+              className="rounded-2xl border-foreground/15 bg-background/40 hover:bg-background"
             >
-              <Link href={`/${locale}/pricing`}>{isHR ? "Cijene" : "Pricing"}</Link>
+              <Link href={`/${locale}/pricing`}>
+                {isHR ? "Cijene" : "Pricing"}
+              </Link>
             </Button>
           </div>
         </div>
