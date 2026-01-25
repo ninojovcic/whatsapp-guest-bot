@@ -463,9 +463,6 @@ export default async function AnalyticsPage({
                 {handoffCount} proslijeđeno • {Math.max(0, total - handoffCount)} AI
               </div>
             </div>
-            <div className="text-emerald-300">
-              <Sparkline values={handoffSpark} />
-            </div>
           </CardContent>
         </Card>
 
@@ -503,10 +500,6 @@ export default async function AnalyticsPage({
               ))}
             </div>
           )}
-
-          <div className="mt-3 text-xs text-muted-foreground">
-            (Bez LLM-a: tokenizacija + brojenje. Super brzo.)
-          </div>
         </CardContent>
       </Card>
 
@@ -524,8 +517,6 @@ export default async function AnalyticsPage({
           <Separator />
           <div className="text-xs text-muted-foreground">
             Napomena: Handoff se trenutno prepoznaje heuristikom (ključne riječi u odgovoru bota).
-            Kad dodaš pravi DB stupac (npr. <span className="font-mono">handoff=true</span>),
-            zamijenimo heuristiku i sve bude 100% točno.
           </div>
         </CardContent>
       </Card>
