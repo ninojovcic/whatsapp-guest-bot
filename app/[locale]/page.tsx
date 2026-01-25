@@ -130,11 +130,8 @@ export default async function Landing({
         <div className="absolute top-[55%] left-1/2 h-[880px] w-[1200px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.18),transparent_66%)] blur-3xl" />
         <div className="absolute top-[68%] right-[-35%] h-[900px] w-[900px] rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.16),transparent_66%)] blur-3xl" />
 
-        {/* bottom glow */}
-        <div className="absolute bottom-[-55%] left-1/2 h-[980px] w-[1400px] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.18),transparent_66%)] blur-3xl" />
-
         {/* vignette for premium depth */}
-        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_12%,rgba(0,0,0,0.65)_78%)]" />
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_12%,rgba(0,0,0,0.65)_100%)]" />
 
         {/* subtle grain */}
         <div className="absolute inset-0 opacity-[0.07] [background-image:radial-gradient(rgba(255,255,255,0.18)_1px,transparent_1px)] [background-size:18px_18px]" />
