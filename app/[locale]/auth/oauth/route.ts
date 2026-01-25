@@ -1,27 +1,29 @@
 // app/[locale]/auth/oauth/route.ts
 import { NextResponse } from "next/server";
+import type { NextRequest } from "next/server";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
 const ALLOWED_PROVIDERS = new Set(["google", "apple"]);
 
-function getOrigin(req: Request) {
-  // Works on Vercel and locally
+function getOrigin(req: NextRequest) {
   const proto =
     req.headers.get("x-forwarded-proto") ??
-    (req.url.startsWith("https") ? "https" : "http");
-  const host = req.headers.get("x-forwarded-host") ?? req.headers.get("host");
+    (req.nextUrl.protocol.replace(":", "") || "https");
+  const host =
+    req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "";
   return `${proto}://${host}`;
 }
 
 export async function GET(
-  req: Request,
-  { params }: { params: { locale: string } }
-) {
-  const url = new URL(req.url);
+  req: NextRequest,
+  context: { params: Promise<{ locale: string }> }
+): Promise<Response> {
+  // ✅ In your setup, params is a Promise
+  await context.params;
 
-  const provider = (url.searchParams.get("provider") || "").toLowerCase();
+  const provider = (req.nextUrl.searchParams.get("provider") || "").toLowerCase();
   if (!ALLOWED_PROVIDERS.has(provider)) {
     return NextResponse.json(
       { error: "Unsupported provider. Use ?provider=google or ?provider=apple" },
@@ -31,8 +33,7 @@ export async function GET(
 
   const origin = getOrigin(req);
 
-  // 👇 Match what you added to Supabase "Redirect URLs"
-  // If your callback route is /auth/callback (no locale), keep this.
+  // 👇 ovo mora biti u Supabase Auth -> URL Configuration -> Redirect URLs
   const redirectTo = `${origin}/auth/callback`;
 
   const supabase = await createSupabaseServer();
