@@ -42,9 +42,9 @@ export default async function AppLayout({
         </div>
 
         <div className="mt-4 grid gap-1 text-sm">
-          <NavLink href={`/${locale}/app`}>Dashboard</NavLink>
-          <NavLink href={`/${locale}/app/properties`}>Properties</NavLink>
-          <NavLink href={`/${locale}/app/logs`}>Logs</NavLink>
+          <NavLink href={`/${locale}/app`}>Nadzorna ploča</NavLink>
+          <NavLink href={`/${locale}/app/properties`}>Objekti</NavLink>
+          <NavLink href={`/${locale}/app/logs`}>Analitika</NavLink>
         </div>
 
         <div className="mt-4 border-t border-foreground/10 pt-4">
@@ -54,7 +54,7 @@ export default async function AppLayout({
               variant="outline"
               className="w-full rounded-2xl border-foreground/15 bg-background/40 hover:bg-background/60"
             >
-              Sign out
+              Odjava
             </Button>
           </form>
         </div>
@@ -70,7 +70,7 @@ export default async function AppLayout({
 
           <div className="flex items-center justify-between gap-3">
             <div>
-              <div className="text-xs text-muted-foreground">Workspace</div>
+              <div className="text-xs text-muted-foreground">Profil</div>
               <div className="text-sm font-semibold tracking-tight">
                 {user.email}
               </div>
@@ -81,7 +81,7 @@ export default async function AppLayout({
                 href={`/${locale}/billing`}
                 className="rounded-xl border border-foreground/10 bg-background/40 px-3 py-2 text-xs font-semibold text-foreground hover:bg-background/60"
               >
-                Plan / Billing
+                Plan / Naplata
               </Link>
             </div>
           </div>

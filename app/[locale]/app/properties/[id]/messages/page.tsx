@@ -80,13 +80,13 @@ export default async function PropertyMessagesPage({
 
   let req = supabase
     .from("messages")
-    .select("id, from_number, guest_message, bot_reply, created_at", { count: "exact" })
+    .select("id, from_number, guest_message, bot_reply, created_at", {
+      count: "exact",
+    })
     .eq("property_id", property.id)
     .order("created_at", { ascending: false });
 
   if (query) {
-    // OR filter across guest_message + bot_reply
-    // Note: Supabase uses PostgREST filter syntax
     req = req.or(`guest_message.ilike.%${query}%,bot_reply.ilike.%${query}%`);
   }
 
@@ -106,24 +106,24 @@ export default async function PropertyMessagesPage({
             <Badge variant="outline" className="font-mono">
               {property.code}
             </Badge>
-            <span className="text-sm text-muted-foreground">Messages</span>
+            <span className="text-sm text-muted-foreground">Poruke</span>
           </div>
         </div>
 
         <div className="flex flex-wrap gap-2">
           <Button variant="outline" asChild>
-            <Link href={`/${locale}/app/properties`}>Back</Link>
+            <Link href={`/${locale}/app/properties`}>Natrag</Link>
           </Button>
           <Button asChild>
-            <Link href={`/${locale}/app/properties/${id}`}>Edit</Link>
+            <Link href={`/${locale}/app/properties/${id}`}>Uredi</Link>
           </Button>
         </div>
       </div>
 
       <Card>
         <CardHeader className="flex-row items-center justify-between gap-3">
-          <CardTitle className="text-lg">Inbox</CardTitle>
-          <Badge variant="secondary">{total} total</Badge>
+          <CardTitle className="text-lg">Ulazna pošta</CardTitle>
+          <Badge variant="secondary">{total} ukupno</Badge>
         </CardHeader>
 
         <CardContent className="space-y-4">
@@ -132,16 +132,18 @@ export default async function PropertyMessagesPage({
             <input
               name="q"
               defaultValue={query}
-              placeholder="Search guest messages or bot replies…"
+              placeholder="Pretraži poruke gostiju ili odgovore bota…"
               className="w-full rounded-md border bg-background px-3 py-2 text-sm outline-none focus:ring-2 focus:ring-ring"
             />
             <div className="flex gap-2">
               <Button type="submit" variant="outline">
-                Search
+                Pretraži
               </Button>
               {query ? (
                 <Button asChild variant="ghost">
-                  <Link href={`/${locale}/app/properties/${id}/messages`}>Clear</Link>
+                  <Link href={`/${locale}/app/properties/${id}/messages`}>
+                    Očisti
+                  </Link>
                 </Button>
               ) : null}
             </div>
@@ -152,18 +154,19 @@ export default async function PropertyMessagesPage({
           {/* List */}
           {!rows || rows.length === 0 ? (
             <div className="rounded-xl border p-6 text-sm text-muted-foreground">
-              No messages yet.
+              Još nema poruka.
             </div>
           ) : (
             <div className="space-y-3">
               {rows.map((m) => {
                 const handoff = isHandoff(m.bot_reply);
                 const guestPhone = m.from_number || "";
+
                 const replyLink = buildWaMeChatLink(
                   guestPhone,
                   nextPublicWhatsApp
-                    ? `Hi! This is the host of ${property.name}.`
-                    : `Hi! This is the host of ${property.name}.`
+                    ? `Bok! Ja sam domaćin objekta ${property.name}.`
+                    : `Bok! Ja sam domaćin objekta ${property.name}.`
                 );
 
                 return (
@@ -171,7 +174,7 @@ export default async function PropertyMessagesPage({
                     <div className="flex flex-wrap items-center justify-between gap-2">
                       <div className="flex flex-wrap items-center gap-2">
                         <Badge variant="outline" className="font-mono">
-                          {guestPhone || "Unknown"}
+                          {guestPhone || "Nepoznato"}
                         </Badge>
 
                         {handoff ? (
@@ -181,7 +184,7 @@ export default async function PropertyMessagesPage({
                         )}
 
                         <span className="text-xs text-muted-foreground">
-                          {new Date(m.created_at).toLocaleString()}
+                          {new Date(m.created_at).toLocaleString("hr-HR")}
                         </span>
                       </div>
 
@@ -189,7 +192,7 @@ export default async function PropertyMessagesPage({
                         {replyLink ? (
                           <Button asChild variant="outline">
                             <a href={replyLink} target="_blank" rel="noreferrer">
-                              Reply in WhatsApp
+                              Odgovori u WhatsAppu
                             </a>
                           </Button>
                         ) : null}
@@ -199,16 +202,20 @@ export default async function PropertyMessagesPage({
                     <div className="mt-3 grid gap-3 md:grid-cols-2">
                       <div className="rounded-lg bg-muted/40 p-3">
                         <div className="text-xs font-medium text-muted-foreground">
-                          Guest
+                          Gost
                         </div>
-                        <div className="mt-1 text-sm">{snippet(m.guest_message, 260)}</div>
+                        <div className="mt-1 text-sm">
+                          {snippet(m.guest_message, 260)}
+                        </div>
                       </div>
 
                       <div className="rounded-lg bg-muted/20 p-3">
                         <div className="text-xs font-medium text-muted-foreground">
                           Bot
                         </div>
-                        <div className="mt-1 text-sm">{snippet(m.bot_reply, 260)}</div>
+                        <div className="mt-1 text-sm">
+                          {snippet(m.bot_reply, 260)}
+                        </div>
                       </div>
                     </div>
                   </div>
@@ -220,33 +227,31 @@ export default async function PropertyMessagesPage({
           {/* Pagination */}
           <div className="flex flex-wrap items-center justify-between gap-2 pt-2">
             <div className="text-sm text-muted-foreground">
-              Page {pageNum} of {totalPages}
+              Stranica {pageNum} od {totalPages}
             </div>
 
             <div className="flex gap-2">
               <Button variant="outline" asChild disabled={pageNum <= 1}>
-  <Link
-    href={`/${locale}/app/properties/${id}/messages${qs({
-      q: query || undefined,
-      page: String(Math.max(1, pageNum - 1)),
-    })}`}
-  >
-    Prev
-  </Link>
-</Button>
+                <Link
+                  href={`/${locale}/app/properties/${id}/messages${qs({
+                    q: query || undefined,
+                    page: String(Math.max(1, pageNum - 1)),
+                  })}`}
+                >
+                  Prethodna
+                </Link>
+              </Button>
 
-<Button variant="outline" asChild disabled={pageNum >= totalPages}>
-  <Link
-    href={`/${locale}/app/properties/${id}/messages${qs({
-      q: query || undefined,
-      page: String(Math.min(totalPages, pageNum + 1)),
-    })}`}
-  >
-    Next
-  </Link>
-</Button>
-
-
+              <Button variant="outline" asChild disabled={pageNum >= totalPages}>
+                <Link
+                  href={`/${locale}/app/properties/${id}/messages${qs({
+                    q: query || undefined,
+                    page: String(Math.min(totalPages, pageNum + 1)),
+                  })}`}
+                >
+                  Sljedeća
+                </Link>
+              </Button>
             </div>
           </div>
         </CardContent>

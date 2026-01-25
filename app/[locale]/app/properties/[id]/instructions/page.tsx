@@ -50,19 +50,21 @@ export default async function InstructionsPage({
   if (!phone) {
     return (
       <div className="space-y-4">
-        <h1 className="text-2xl font-semibold">Guest instructions</h1>
+        <h1 className="text-2xl font-semibold">Upute za goste</h1>
         <p className="text-sm text-muted-foreground">
-          Missing <span className="font-mono">NEXT_PUBLIC_WHATSAPP_NUMBER</span> env var.
+          Nedostaje{" "}
+          <span className="font-mono">NEXT_PUBLIC_WHATSAPP_NUMBER</span>{" "}
+          varijabla okruženja.
         </p>
         <Button asChild>
-          <Link href={`/${locale}/app/properties/${id}`}>Back</Link>
+          <Link href={`/${locale}/app/properties/${id}`}>Natrag</Link>
         </Button>
       </div>
     );
   }
 
-  // ✅ WhatsApp deep link (NOT /g/...)
-  const prefill = `${property.code}: Hi! I have a question about my stay.`;
+  // ✅ WhatsApp deep link
+  const prefill = `${property.code}: Bok! Imam pitanje vezano uz boravak.`;
   const waLink = buildWaMeLink(phone, prefill);
 
   const qrDataUrl = await QRCode.toDataURL(waLink, {
@@ -84,15 +86,16 @@ export default async function InstructionsPage({
 
       <div className="no-print flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Guest instructions</h1>
+          <h1 className="text-2xl font-semibold">Upute za goste</h1>
           <p className="text-sm text-muted-foreground">
-            Print this and place it in the property (QR opens WhatsApp with the code prefilled).
+            Ispiši i ostavi u objektu (QR otvara WhatsApp s već upisanim kodom
+            objekta).
           </p>
         </div>
 
         <div className="flex gap-2">
           <Button variant="outline" asChild>
-            <Link href={`/${locale}/app/properties`}>Back</Link>
+            <Link href={`/${locale}/app/properties`}>Natrag</Link>
           </Button>
           <PrintButton />
         </div>
@@ -106,12 +109,17 @@ export default async function InstructionsPage({
               <Badge variant="outline" className="font-mono">
                 {property.code}
               </Badge>
-              <span className="text-xs text-muted-foreground">Property code</span>
+              <span className="text-xs text-muted-foreground">
+                Kod objekta
+              </span>
             </div>
           </div>
+
           <div className="no-print">
             <Button variant="outline" asChild>
-              <Link href={`/${locale}/app/properties/${id}`}>Edit property</Link>
+              <Link href={`/${locale}/app/properties/${id}`}>
+                Uredi objekt
+              </Link>
             </Button>
           </div>
         </CardHeader>
@@ -119,12 +127,16 @@ export default async function InstructionsPage({
         <CardContent className="space-y-5">
           <div className="grid gap-6 md:grid-cols-[360px_1fr]">
             <div className="rounded-xl border p-4">
-              <div className="text-sm font-medium">Scan to chat</div>
+              <div className="text-sm font-medium">Skeniraj za razgovor</div>
               <div className="mt-3 flex justify-center">
-                <img src={qrDataUrl} alt="WhatsApp QR" className="h-auto w-[320px]" />
+                <img
+                  src={qrDataUrl}
+                  alt="WhatsApp QR kod"
+                  className="h-auto w-[320px]"
+                />
               </div>
               <div className="mt-3 text-xs text-muted-foreground">
-                Opens WhatsApp and pre-fills the message with your property code.
+                Otvara WhatsApp i automatski upisuje poruku s kodom objekta.
               </div>
             </div>
 
@@ -152,7 +164,9 @@ export default async function InstructionsPage({
           </div>
 
           <div className="rounded-xl border p-4">
-            <div className="text-sm font-medium">Backup link (if QR doesn’t work)</div>
+            <div className="text-sm font-medium">
+              Rezervni link (ako QR ne radi)
+            </div>
             <div className="mt-2 break-all rounded-md bg-muted p-3 font-mono text-xs">
               {waLink}
             </div>

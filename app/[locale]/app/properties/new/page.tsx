@@ -33,12 +33,18 @@ export default async function NewPropertyPage({
     const name = String(formData.get("name") || "").trim();
     const codeRaw = String(formData.get("code") || "");
     const code = normalizeCode(codeRaw);
-    const handoff_email = String(formData.get("handoff_email") || "").trim() || null;
+
+    const address = String(formData.get("address") || "").trim() || null;
+
+    const handoff_email =
+      String(formData.get("handoff_email") || "").trim() || null;
+
+    // ✅ FIX: zatvoren string literal
     const languages = String(formData.get("languages") || "auto").trim() || "auto";
+
     const knowledge_text = String(formData.get("knowledge_text") || "").trim();
 
     if (!name || !code || !knowledge_text) {
-      // Basic server validation: just bounce back
       redirect(`/${locale}/app/properties/new?error=missing`);
     }
 
@@ -52,6 +58,7 @@ export default async function NewPropertyPage({
       .insert({
         name,
         code,
+        address,
         knowledge_text,
         languages,
         handoff_email,
@@ -72,76 +79,94 @@ export default async function NewPropertyPage({
     <div className="space-y-6">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-semibold">New property</h1>
+          <h1 className="text-2xl font-semibold">Novi objekt</h1>
           <p className="text-sm text-muted-foreground">
-            Create a property code guests will use like <span className="font-mono">ANA123:</span>
+            Kreiraj kod objekta koji gosti koriste, npr.{" "}
+            <span className="font-mono">ANA123:</span>
           </p>
         </div>
 
         <Button variant="outline" asChild>
-          <Link href={`/${locale}/app/properties`}>Back</Link>
+          <Link href={`/${locale}/app/properties`}>Natrag</Link>
         </Button>
       </div>
 
-      <Card>
+      <Card className="rounded-3xl border border-foreground/10 bg-background/55 backdrop-blur">
         <CardHeader>
-          <CardTitle>Property details</CardTitle>
+          <CardTitle>Detalji objekta</CardTitle>
         </CardHeader>
+
         <CardContent>
           <form action={createProperty} className="space-y-5">
             <div className="grid gap-4 md:grid-cols-2">
               <div className="space-y-2">
-                <label className="text-sm font-medium">Name</label>
+                <label className="text-sm font-medium">Naziv</label>
                 <Input name="name" placeholder="Villa Ana" required />
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Code</label>
+                <label className="text-sm font-medium">Kod</label>
                 <Input name="code" placeholder="ANA123" required />
                 <p className="text-xs text-muted-foreground">
-                  Guests will message: <span className="font-mono">CODE: question</span>
+                  Gosti šalju: <span className="font-mono">KOD: pitanje</span>
+                </p>
+              </div>
+
+              <div className="space-y-2 md:col-span-2">
+                <label className="text-sm font-medium">Adresa objekta</label>
+                <Input
+                  name="address"
+                  placeholder="Ulica 1, 21000 Split, Hrvatska"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Pomaže AI-u kod općih informacija (lokacija, udaljenosti,
+                  preporuke u blizini). Ako ne želiš, može ostati prazno.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Handoff email</label>
+                <label className="text-sm font-medium">
+                  Email za prosljeđivanje (handoff)
+                </label>
                 <Input name="handoff_email" placeholder="owner@domain.com" />
                 <p className="text-xs text-muted-foreground">
-                  Where we forward questions when the bot doesn’t know.
+                  Ovdje šaljemo upite kada bot nema točnu informaciju.
                 </p>
               </div>
 
               <div className="space-y-2">
-                <label className="text-sm font-medium">Languages</label>
+                <label className="text-sm font-medium">Jezici</label>
                 <Input name="languages" defaultValue="auto" />
                 <p className="text-xs text-muted-foreground">
-                  Keep <span className="font-mono">auto</span> for “reply in guest language”.
+                  Ostavi <span className="font-mono">auto</span> za “odgovori na
+                  jeziku gosta”.
                 </p>
               </div>
             </div>
 
             <div className="space-y-2">
-              <label className="text-sm font-medium">Knowledge base</label>
+              <label className="text-sm font-medium">Baza znanja</label>
               <Textarea
                 name="knowledge_text"
                 required
                 rows={14}
-                placeholder={`Facts:
-- Check-in: after 15:00
-- Check-out: until 10:00
-- Parking: free
+                placeholder={`Činjenice:
+- Check-in: nakon 15:00
+- Check-out: do 10:00
+- Parking: besplatan
 - Wi-Fi: ...
-If unknown, forward to host.`}
+Ako nema informacije, proslijedi domaćinu.`}
               />
               <p className="text-xs text-muted-foreground">
-                Tip: write in bullet points. The bot is instructed to use only this info.
+                Savjet: piši u bulletima. Bot je podešen da koristi samo ove
+                informacije i da ne izmišlja.
               </p>
             </div>
 
             <div className="flex gap-3">
-              <Button type="submit">Create property</Button>
+              <Button type="submit">Kreiraj objekt</Button>
               <Button variant="outline" asChild>
-                <Link href={`/${locale}/app/properties`}>Cancel</Link>
+                <Link href={`/${locale}/app/properties`}>Odustani</Link>
               </Button>
             </div>
           </form>

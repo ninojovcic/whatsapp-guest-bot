@@ -9,7 +9,7 @@ import { Badge } from "@/components/ui/badge";
 import type { Metadata } from "next";
 
 export const metadata: Metadata = {
-  title: "Nadzorna ploča",
+  title: "Objekti",
 };
 
 export default async function PropertiesPage({
@@ -39,37 +39,39 @@ export default async function PropertiesPage({
 
   return (
     <div className="space-y-6">
+      {/* Header */}
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
-          <h1 className="text-2xl font-semibold">Properties</h1>
+          <h1 className="text-2xl font-semibold">Objekti</h1>
           <p className="text-sm text-muted-foreground">
-            Manage your properties and view guest messages.
+            Upravljaj objektima i pregledaj poruke gostiju.
           </p>
         </div>
 
         <Button asChild>
-          <Link href={`/${locale}/app/properties/new`}>New property</Link>
+          <Link href={`/${locale}/app/properties/new`}>Novi objekt</Link>
         </Button>
       </div>
 
+      {/* List */}
       <Card>
         <CardHeader className="flex-row items-center justify-between">
-          <CardTitle>Your list</CardTitle>
-          <Badge variant="secondary">{rows.length} total</Badge>
+          <CardTitle>Popis objekata</CardTitle>
+          <Badge variant="secondary">{rows.length} ukupno</Badge>
         </CardHeader>
 
         <CardContent className="space-y-3">
           {rows.length === 0 ? (
             <div className="rounded-lg border p-6 text-sm text-muted-foreground">
-              No properties yet. Create your first one.
+              Još nemaš nijedan objekt. Kreiraj prvi objekt.
             </div>
           ) : (
             <div className="space-y-3">
               {rows.map((p) => {
-                // Dashboard print page (requires login, for the owner)
+                // Ispis uputa (za vlasnika)
                 const printPath = `/${locale}/app/properties/${p.id}/instructions`;
 
-                // Public guest link (no login, for guests)
+                // Javni link za goste
                 const guestPath = `/${locale}/g/${p.code}`;
 
                 return (
@@ -79,31 +81,38 @@ export default async function PropertiesPage({
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="truncate text-base font-semibold">{p.name}</div>
+                        <div className="truncate text-base font-semibold">
+                          {p.name}
+                        </div>
                         <Badge variant="outline" className="font-mono">
                           {p.code}
                         </Badge>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        Created: {new Date(p.created_at).toLocaleString()}
+                        Kreirano:{" "}
+                        {new Date(p.created_at).toLocaleString("hr-HR")}
                       </div>
                     </div>
 
                     <div className="flex flex-wrap gap-2">
                       <Button variant="outline" asChild>
-                        <Link href={`/${locale}/app/properties/${p.id}/messages`}>
-                          Messages
+                        <Link
+                          href={`/${locale}/app/properties/${p.id}/messages`}
+                        >
+                          Poruke
                         </Link>
                       </Button>
 
                       <Button variant="outline" asChild>
-                        <Link href={printPath}>Print</Link>
+                        <Link href={printPath}>Ispis</Link>
                       </Button>
 
                       <CopyLinkButton path={guestPath} />
 
                       <Button asChild>
-                        <Link href={`/${locale}/app/properties/${p.id}`}>Edit</Link>
+                        <Link href={`/${locale}/app/properties/${p.id}`}>
+                          Uredi
+                        </Link>
                       </Button>
                     </div>
                   </div>
