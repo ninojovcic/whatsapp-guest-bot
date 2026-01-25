@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import type { ReactNode } from "react";
 import Link from "next/link";
 
@@ -7,6 +8,14 @@ import { LocaleSwitch } from "@/components/locale-switch";
 
 import { t as T, getLocale } from "@/lib/i18n";
 import { createSupabaseServer } from "@/lib/supabase/server";
+
+export const metadata: Metadata = {
+  title: {
+    default: "Gostly",
+    template: "%s | Gostly",
+  },
+  description: "AI WhatsApp asistent za apartmane, hotele i turizam.",
+};
 
 export default async function LocaleLayout({
   children,

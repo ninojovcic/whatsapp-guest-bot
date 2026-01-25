@@ -5,6 +5,11 @@ import { createSupabaseServer } from "@/lib/supabase/server";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Nadzorna ploča",
+};
 
 function monthKeyUTC(d = new Date()) {
   const y = d.getUTCFullYear();

@@ -300,13 +300,24 @@ function PlanCard({
   return (
     <div
       className={[
-        // ✅ glass card so global glow is still visible
         "relative overflow-hidden rounded-3xl border bg-background/55 p-6 shadow-sm backdrop-blur",
         highlight
-          ? "border-foreground/15 shadow-[0_1px_0_rgba(255,255,255,0.04),0_22px_70px_-35px_rgba(34,197,94,0.35)]"
+          ? "border-white/20 shadow-[0_1px_0_rgba(255,255,255,0.06),0_26px_90px_-45px_rgba(34,197,94,0.55)]"
           : "border-border",
       ].join(" ")}
     >
+      {/* ✅ Inner glow ONLY for highlight */}
+      {highlight ? (
+        <div className="pointer-events-none absolute inset-0">
+          {/* top green bloom */}
+          <div className="absolute -top-24 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.22),transparent_62%)] blur-2xl" />
+          {/* subtle bottom accent */}
+          <div className="absolute -bottom-28 right-[-6rem] h-64 w-96 rounded-full bg-[radial-gradient(circle,rgba(16,185,129,0.16),transparent_64%)] blur-2xl" />
+          {/* slight vignette inside card for depth */}
+          <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,rgba(255,255,255,0.06),transparent_55%)]" />
+        </div>
+      ) : null}
+
       {badge && (
         <div className="absolute top-4 right-4 rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-background">
           {badge}
@@ -318,9 +329,7 @@ function PlanCard({
 
       <div className="mt-6 flex items-baseline gap-2">
         <div className="text-4xl font-semibold tracking-tight">{price}</div>
-        {cadence ? (
-          <div className="text-sm text-muted-foreground">{cadence}</div>
-        ) : null}
+        {cadence ? <div className="text-sm text-muted-foreground">{cadence}</div> : null}
       </div>
 
       <div className="mt-6">
@@ -338,9 +347,7 @@ function PlanCard({
           {ctaLabel}
         </Link>
 
-        <p className="mt-2 text-center text-xs text-muted-foreground">
-          {footer}
-        </p>
+        <p className="mt-2 text-center text-xs text-muted-foreground">{footer}</p>
       </div>
 
       <div className="mt-6 border-t border-border pt-6">
@@ -348,13 +355,7 @@ function PlanCard({
           {bullets.map((f) => (
             <li key={f} className="flex items-start gap-3">
               <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted/60 ring-1 ring-border">
-                <svg
-                  width="12"
-                  height="12"
-                  viewBox="0 0 24 24"
-                  fill="none"
-                  aria-hidden="true"
-                >
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
                   <path
                     d="M20 6L9 17l-5-5"
                     stroke="currentColor"

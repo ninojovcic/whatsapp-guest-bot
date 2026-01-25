@@ -10,6 +10,11 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Separator } from "@/components/ui/separator";
 import { PrintButton } from "@/components/print-button";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Upute za goste",
+};
 
 function digitsOnlyPhone(e164: string) {
   return (e164 || "").replace(/[^\d]/g, "");
