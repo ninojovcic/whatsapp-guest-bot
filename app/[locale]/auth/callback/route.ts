@@ -1,16 +1,8 @@
-// app/[locale]/auth/callback/route.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createSupabaseServer } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
-
-function safeNext(next: string | null, fallback: string) {
-  if (!next) return fallback;
-  // allow only internal relative paths (avoid open redirects)
-  if (next.startsWith("/") && !next.startsWith("//")) return next;
-  return fallback;
-}
 
 export async function GET(
   req: NextRequest,
@@ -19,21 +11,21 @@ export async function GET(
   const { locale } = await context.params;
 
   const code = req.nextUrl.searchParams.get("code");
-  const nextRaw = req.nextUrl.searchParams.get("next");
-  const next = safeNext(nextRaw, `/${locale}/app`);
+  const next = req.nextUrl.searchParams.get("next") || `/${locale}/app`;
 
+  // ako nema code-a, vrati na login u istom locale-u
   if (!code) {
-    return NextResponse.redirect(new URL(`/${locale}/login`, req.url));
+    return NextResponse.redirect(new URL(`/${locale}/login`, req.nextUrl.origin));
   }
 
   const supabase = await createSupabaseServer();
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
+  // ako session exchange faila, opet na login
   if (error) {
-    return NextResponse.redirect(
-      new URL(`/${locale}/login?error=oauth`, req.url)
-    );
+    return NextResponse.redirect(new URL(`/${locale}/login`, req.nextUrl.origin));
   }
 
-  return NextResponse.redirect(new URL(next, req.url));
+  // next može već uključivati /hr/... ili /en/... – koristimo kako je došao
+  return NextResponse.redirect(new URL(next, req.nextUrl.origin));
 }
