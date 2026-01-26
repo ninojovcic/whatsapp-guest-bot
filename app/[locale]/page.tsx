@@ -3,6 +3,12 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DemoRotator } from "@/components/demo-rotator";
+import type { Metadata } from "next";
+import { Analytics } from "@vercel/analytics/next"
+
+export const metadata: Metadata = {
+  title: "Početna",
+};
 
 export default async function Landing({
   params,
