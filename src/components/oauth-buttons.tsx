@@ -9,8 +9,10 @@ export function OAuthButtons({
   locale: string;
   next: string;
 }) {
-  function goGoogle() {
-    const url = `/${locale}/auth/oauth?provider=google&next=${encodeURIComponent(next)}`;
+  function startGoogle() {
+    const url = `/${locale}/auth/oauth?provider=google&next=${encodeURIComponent(
+      next
+    )}`;
     window.location.href = url;
   }
 
@@ -20,7 +22,7 @@ export function OAuthButtons({
         type="button"
         variant="outline"
         className="w-full rounded-2xl bg-background/40 hover:bg-background/60"
-        onClick={goGoogle}
+        onClick={startGoogle}
       >
         {locale === "hr" ? "Nastavi s Google" : "Continue with Google"}
       </Button>

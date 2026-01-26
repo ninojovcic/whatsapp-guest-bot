@@ -43,7 +43,7 @@ export default async function LoginPage({
             <input
               name="email"
               type="email"
-              placeholder={locale === "hr" ? "Email" : "Email"}
+              placeholder="Email"
               required
               className="w-full rounded-xl border bg-background/40 px-3 py-2 outline-none ring-0 focus:border-foreground/20"
             />
