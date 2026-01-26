@@ -1,3 +1,4 @@
+// app/[locale]/auth/callback/route.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createSupabaseServer } from "@/lib/supabase/server";
@@ -6,18 +7,16 @@ export const dynamic = "force-dynamic";
 
 function safeNext(next: string | null, fallback: string) {
   if (!next) return fallback;
-
-  // Only allow internal relative paths (avoid open redirects)
+  // allow only internal relative paths (avoid open redirects)
   if (next.startsWith("/") && !next.startsWith("//")) return next;
-
   return fallback;
 }
 
 export async function GET(
   req: NextRequest,
-  { params }: { params: { locale: string } }
-) {
-  const { locale } = params;
+  context: { params: Promise<{ locale: string }> }
+): Promise<Response> {
+  const { locale } = await context.params;
 
   const code = req.nextUrl.searchParams.get("code");
   const nextRaw = req.nextUrl.searchParams.get("next");
