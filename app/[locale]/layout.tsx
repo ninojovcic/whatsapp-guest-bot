@@ -322,7 +322,7 @@ export default async function LocaleLayout({
           </span>
 
           {/* ✅ SAFE default copy (edit if you truly are certified) */}
-          <span>Službena Whatsapp Poslovna Platforma (Certificirani Provider Tehnologije)</span>
+          <span>Službena Whatsapp Poslovna Platforma</span>
 
  
           {/*

@@ -1,5 +1,10 @@
 // src/app/[locale]/pricing/page.tsx
 import Link from "next/link";
+import type { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Cijene",
+};
 
 export const dynamic = "force-dynamic";
 export const revalidate = 0;
@@ -17,91 +22,120 @@ export default async function Pricing({
     ? {
         title: "Cijene",
         subtitle:
-          "Kreni jednostavno, nadogradi kad ti treba. Jasno, bez sitnih slova.",
-        note: "Cijene su u EUR. Možeš otkazati bilo kada.",
+          "Kreni s besplatnim probnim periodom, a zatim odaberi plan koji ti odgovara. Jasno, bez sitnih slova.",
+        note:
+          "Cijene su u EUR. Probni period: 14 dana (bez kartice). Možeš otkazati bilo kada.",
         badgeTop: "Transparentno i jednostavno",
         starter: {
           name: "Starter",
-          price: "€29",
+          price: "€19",
           cadence: "/ mj",
-          desc: "Za 1 objekt i osnove automatizacije.",
-          bullets: ["1 objekt", "AI odgovori + handoff", "Osnovna analitika"],
+          desc: "Za male iznajmljivače i 1–2 objekta.",
+          bullets: [
+            "Do 2 objekta",
+            "1.000 poruka / mj",
+            "AI odgovori + handoff",
+            "Osnovna analitika",
+            "QR upute za goste",
+          ],
           cta: "Kreni",
-          foot: "Osnovni paket, brza postava.",
+          foot: "Najbrži put do 24/7 odgovora za goste.",
         },
         pro: {
           name: "Pro",
-          price: "€59",
+          price: "€49",
           cadence: "/ mj",
-          desc: "Za ozbiljniji rad i više objekata.",
-          bullets: ["Do 3 objekta", "Napredniji logovi", "Prioritetna podrška"],
+          desc: "Za ozbiljniji rad, više objekata i naprednu analitiku.",
+          bullets: [
+            "Do 10 objekata",
+            "5.000 poruka / mj",
+            "Napredna analitika + trendovi",
+            "Handoff rate + top upiti",
+            "Export CSV",
+            "Prioritetna podrška",
+          ],
           cta: "Kreni",
           badge: "Najpopularnije",
-          foot: "Odmah aktivno nakon prijave.",
+          foot: "Najbolji omjer cijene i vrijednosti.",
         },
         ent: {
-          name: "Enterprise",
-          price: "Po dogovoru",
+          name: "Business / Enterprise",
+          price: "Po upitu",
           cadence: "",
-          desc: "Za timove i posebne zahtjeve.",
-          bullets: ["Integracije po mjeri", "Više timova"],
+          desc: "Za timove, agencije i posebne potrebe.",
+          bullets: ["Custom volumen poruka", "SLA podrška", "Integracije po mjeri"],
           cta: "Kontakt",
-          foot: "Odgovaramo u 1 radni dan.",
+          foot: "Dogovorimo plan prema tvojoj situaciji.",
         },
         compareTitle: "Usporedba planova",
         compareSubtitle: "Brz pregled ključnih razlika.",
         featuresCol: "Značajke",
-        bottomText: "Trebaš nešto posebno? Javi se i složimo plan.",
+        bottomText:
+          "Trebaš više objekata, custom integracije ili SLA? Javi se i složimo plan.",
         startFree: "Kreni besplatno",
         faq1q: "Mogu li promijeniti plan kasnije?",
         faq1a: "Da. Možeš nadograditi ili smanjiti plan kad god želiš.",
-        faq2q: "Trebam li karticu za Starter?",
-        faq2a:
-          "Da, međutim prvi mjesec je besplatan i možeš otkazati bilo kad.",
+        faq2q: "Trebam li karticu za probni period?",
+        faq2a: "Ne. Probni period traje 14 dana i možeš krenuti bez kartice.",
       }
     : {
         title: "Pricing",
         subtitle:
-          "Start simple, upgrade when you need more. Clear, no fine print.",
-        note: "Prices in EUR. Cancel anytime.",
+          "Start with a free trial, then pick the plan that fits. Clear, no fine print.",
+        note:
+          "Prices in EUR. Free trial: 14 days (no card). Cancel anytime.",
         badgeTop: "Transparent and simple",
         starter: {
           name: "Starter",
-          price: "€29",
+          price: "€19",
           cadence: "/ mo",
-          desc: "For 1 property and the essentials.",
-          bullets: ["1 property", "AI replies + handoff", "Basic analytics"],
+          desc: "For small hosts and 1–2 properties.",
+          bullets: [
+            "Up to 2 properties",
+            "1,000 messages / mo",
+            "AI replies + handoff",
+            "Basic analytics",
+            "Guest QR instructions",
+          ],
           cta: "Start",
-          foot: "Basic package, quick setup.",
+          foot: "Fastest way to answer guests 24/7.",
         },
         pro: {
           name: "Pro",
-          price: "€59",
+          price: "€49",
           cadence: "/ mo",
-          desc: "For serious usage and more properties.",
-          bullets: ["Up to 3 properties", "Advanced logs", "Priority support"],
+          desc: "For more properties and advanced analytics.",
+          bullets: [
+            "Up to 10 properties",
+            "5,000 messages / mo",
+            "Advanced analytics + trends",
+            "Handoff rate + top questions",
+            "CSV export",
+            "Priority support",
+          ],
           cta: "Start",
           badge: "Most popular",
-          foot: "Instant access after signup.",
+          foot: "Best value for growing teams.",
         },
         ent: {
-          name: "Enterprise",
+          name: "Business / Enterprise",
           price: "Custom",
           cadence: "",
-          desc: "For teams and special requirements.",
-          bullets: ["Custom integrations", "Multiple teams"],
+          desc: "For teams, agencies, and custom requirements.",
+          bullets: ["Custom message volume", "SLA support", "Custom integrations"],
           cta: "Contact",
-          foot: "Replies within 1 business day.",
+          foot: "We’ll tailor a plan to your needs.",
         },
         compareTitle: "Compare plans",
         compareSubtitle: "A quick view of the key differences.",
         featuresCol: "Features",
-        bottomText: "Need something custom? Reach out and we’ll tailor a plan.",
+        bottomText:
+          "Need more properties, custom integrations, or an SLA? Reach out and we’ll tailor a plan.",
         startFree: "Start free",
         faq1q: "Can I change plans later?",
         faq1a: "Yes. Upgrade or downgrade anytime.",
-        faq2q: "Do I need a card for Starter?",
-        faq2a: "No. Start without a card and upgrade when you need more.",
+        faq2q: "Do I need a card for the free trial?",
+        faq2a: "No. The free trial lasts 14 days and you can start without a card.",
       };
 
   return (
@@ -199,8 +233,14 @@ export default async function Pricing({
               <tbody>
                 <Row
                   label={isHR ? "Objekti" : "Properties"}
-                  starter="1"
-                  pro={isHR ? "Do 3" : "Up to 3"}
+                  starter={isHR ? "Do 2" : "Up to 2"}
+                  pro={isHR ? "Do 10" : "Up to 10"}
+                  ent={isHR ? "Po dogovoru" : "Custom"}
+                />
+                <Row
+                  label={isHR ? "Poruke / mj" : "Messages / mo"}
+                  starter={isHR ? "1.000" : "1,000"}
+                  pro={isHR ? "5.000" : "5,000"}
                   ent={isHR ? "Po dogovoru" : "Custom"}
                 />
                 <Row
@@ -216,10 +256,16 @@ export default async function Pricing({
                   ent={isHR ? "Napredna" : "Advanced"}
                 />
                 <Row
-                  label={isHR ? "Logovi" : "Logs"}
+                  label={isHR ? "Handoff rate + Top upiti" : "Handoff rate + Top questions"}
                   starter="—"
-                  pro={isHR ? "Napredniji" : "Advanced"}
-                  ent={isHR ? "Po dogovoru" : "Custom"}
+                  pro
+                  ent
+                />
+                <Row
+                  label={isHR ? "Export CSV" : "CSV export"}
+                  starter="—"
+                  pro
+                  ent
                 />
                 <Row
                   label={isHR ? "Podrška" : "Support"}
@@ -229,12 +275,6 @@ export default async function Pricing({
                 />
                 <Row
                   label={isHR ? "Integracije po mjeri" : "Custom integrations"}
-                  starter="—"
-                  pro="—"
-                  ent
-                />
-                <Row
-                  label={isHR ? "Više timova" : "Multiple teams"}
                   starter="—"
                   pro="—"
                   ent
@@ -329,7 +369,9 @@ function PlanCard({
 
       <div className="mt-6 flex items-baseline gap-2">
         <div className="text-4xl font-semibold tracking-tight">{price}</div>
-        {cadence ? <div className="text-sm text-muted-foreground">{cadence}</div> : null}
+        {cadence ? (
+          <div className="text-sm text-muted-foreground">{cadence}</div>
+        ) : null}
       </div>
 
       <div className="mt-6">
@@ -347,7 +389,9 @@ function PlanCard({
           {ctaLabel}
         </Link>
 
-        <p className="mt-2 text-center text-xs text-muted-foreground">{footer}</p>
+        <p className="mt-2 text-center text-xs text-muted-foreground">
+          {footer}
+        </p>
       </div>
 
       <div className="mt-6 border-t border-border pt-6">
@@ -355,7 +399,13 @@ function PlanCard({
           {bullets.map((f) => (
             <li key={f} className="flex items-start gap-3">
               <span className="mt-0.5 inline-flex h-5 w-5 items-center justify-center rounded-full bg-muted/60 ring-1 ring-border">
-                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+                <svg
+                  width="12"
+                  height="12"
+                  viewBox="0 0 24 24"
+                  fill="none"
+                  aria-hidden="true"
+                >
                   <path
                     d="M20 6L9 17l-5-5"
                     stroke="currentColor"

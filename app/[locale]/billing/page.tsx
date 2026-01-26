@@ -63,7 +63,8 @@ export default async function BillingPage({
 
       {sp?.success ? (
         <div className="rounded-xl border bg-muted p-4 text-sm">
-          ✅ Plaćanje uspješno — hvala! (Ako ne vidiš odmah novi plan, pričekaj par sekundi i refresh.)
+          ✅ Plaćanje uspješno — hvala! (Ako ne vidiš odmah novi plan, pričekaj
+          par sekundi i refresh.)
         </div>
       ) : null}
 
@@ -82,7 +83,8 @@ export default async function BillingPage({
         </CardHeader>
         <CardContent className="space-y-3 text-sm">
           <div>
-            Mjesečni limit poruka: <span className="font-semibold">{limit}</span>
+            Mjesečni limit poruka:{" "}
+            <span className="font-semibold">{limit}</span>
           </div>
           <div>
             Stripe status: <span className="font-semibold">{status}</span>
@@ -99,34 +101,53 @@ export default async function BillingPage({
           <CardTitle>Nadogradnja</CardTitle>
         </CardHeader>
         <CardContent className="space-y-4">
+          {/* STARTER */}
+          <div className="rounded-xl border p-4">
+            <div className="flex flex-wrap items-center justify-between gap-2">
+              <div>
+                <div className="font-semibold">STARTER</div>
+                <div className="text-sm text-muted-foreground">
+                  Do 2 objekta i 1.000 poruka mjesečno. Idealno za male
+                  iznajmljivače.
+                </div>
+              </div>
+              <UpgradeButton plan="starter" variant="outline">
+                Odaberi STARTER
+              </UpgradeButton>
+            </div>
+          </div>
+
+          {/* PRO */}
           <div className="rounded-xl border p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
                 <div className="font-semibold">PRO</div>
                 <div className="text-sm text-muted-foreground">
-                  Više poruka mjesečno, za većinu iznajmljivača.
+                  Do 10 objekata i 5.000 poruka mjesečno + napredna analitika.
                 </div>
               </div>
-              <UpgradeButton plan="pro">Upgrade na PRO</UpgradeButton>
+              <UpgradeButton plan="pro">Odaberi PRO</UpgradeButton>
             </div>
           </div>
 
+          {/* BUSINESS */}
           <div className="rounded-xl border p-4">
             <div className="flex flex-wrap items-center justify-between gap-2">
               <div>
-                <div className="font-semibold">BUSINESS</div>
+                <div className="font-semibold">BUSINESS / ENTERPRISE</div>
                 <div className="text-sm text-muted-foreground">
-                  Za više objekata i veći volumen poruka.
+                  Custom broj objekata i poruka, SLA i integracije po mjeri.
                 </div>
               </div>
-              <UpgradeButton plan="business" variant="outline">
-                  Upgrade na BUSINESS
-              </UpgradeButton>
+              <Button asChild variant="outline">
+                <Link href={`/${locale}/contact`}>Kontakt</Link>
+              </Button>
             </div>
           </div>
 
           <div className="text-xs text-muted-foreground">
-            Napomena: otkazivanje pretplate i “manage subscription” ćemo dodati čim završimo Stripe Portal (sljedeći korak).
+            Napomena: “Manage subscription” (Stripe Portal) dodajemo kao sljedeći
+            korak.
           </div>
         </CardContent>
       </Card>

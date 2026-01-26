@@ -3,8 +3,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 
+type Plan = "starter" | "pro" | "business";
+
 type Props = {
-  plan?: "pro" | "business";
+  plan?: Plan;
   children?: React.ReactNode;
   className?: string;
   variant?: "default" | "outline" | "secondary" | "ghost" | "destructive";

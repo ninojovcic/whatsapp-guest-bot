@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { DemoRotator } from "@/components/demo-rotator";
 import type { Metadata } from "next";
-import { Analytics } from "@vercel/analytics/next"
+import { Analytics } from "@vercel/analytics/next";
 
 export const metadata: Metadata = {
   title: "Početna",
@@ -20,33 +20,29 @@ export default async function Landing({
 
   const copy = isHR
     ? {
-        badge: "Za apartmane • hotele • restorane",
+        badge: "Za apartmane • hotele • turizam",
         h1: "Gostly — pametni WhatsApp asistent za iznajmljivače",
-        p: "Odgovara gostima 24/7 na najčešća pitanja, smanjuje broj poruka prema domaćinu i osigurava da se svaki važan upit automatski proslijedi kada je potrebna ljudska intervencija.",
-        cta1: "Isprobaj odmah",
+        p: "Odgovara gostima 24/7 na najčešća pitanja, smanjuje broj poruka prema domaćinu i osigurava da se svaki važan upit sigurno proslijedi kada je potrebna ljudska intervencija.",
+        cta1: "Isprobaj besplatno",
         cta2: "Pogledaj cijene",
-        proof: [
-          "Brzo postavljanje [5 min]",
-          "Jednostavno sučelje",
-          "Siguran i pouzdan handoff",
-        ],
+        proof: ["14 dana free trial (bez kartice)", "Postavljanje u 5 min", "Siguran handoff"],
         featuresTitle: "Što dobivaš?",
         features: [
           {
             title: "Odgovori 24/7",
-            desc: "Gosti dobiju odgovor odmah, i kad ti spavaš ili radiš.",
+            desc: "Gosti dobiju odgovor odmah — i kad ti spavaš ili radiš.",
           },
           {
-            title: "Bilingvalno + auto jezik",
-            desc: "Odgovara na 100+ jezika, u jeziku gosta bez dodatnog rada.",
+            title: "Auto jezik (100+ jezika)",
+            desc: "Odgovara na jeziku gosta bez dodatnog rada.",
           },
           {
             title: "Handoff domaćinu",
-            desc: "Ako nema podatak, ne izmišlja — pošalje tebi upit na email.",
+            desc: "Ako nema podatak, ne izmišlja — automatski proslijedi upit domaćinu.",
           },
           {
             title: "Analitika i uvidi",
-            desc: "Sve poruke se spremaju da vidiš što gosti najčešće pitaju. Dajemo ti ideje za poboljšanje informacija i FAQ-a.",
+            desc: "Vidi trendove, handoff rate i najčešće upite — pa poboljšaj informacije i FAQ.",
           },
         ],
         howTitle: "Kako radi",
@@ -61,23 +57,23 @@ export default async function Landing({
           },
           {
             title: "Gostly odgovara ili prosljeđuje domaćinu",
-            desc: "Gostly šalje odgovor ili prosljeđuje domaćinu.",
+            desc: "Brz odgovor iz baze znanja — ili siguran handoff kad treba čovjek.",
           },
         ],
         demoTitle: "Brzi demo",
         demoQ: "TEST1: Imate li parking?",
         demoA: "Da — besplatan parking je dostupan ispred objekta.",
-        finalTitle: "Kreni odmah sa svojim prvim korisnicima",
-        finalP: "Nisi siguran? Isprobaj besplatno s jednim objektom i 100 poruka mjesečno. Kada budeš spreman, uvijek možeš nadograditi svoj plan.",
+        finalTitle: "Kreni bez rizika",
+        finalP: "Isprobaj 14 dana besplatno (bez kartice). Nakon toga odaberi Starter (€19) ili Pro (€49) — ovisno o broju objekata i poruka.",
         finalCta: "Kreni sada",
       }
     : {
-        badge: "For rentals • hotels • restaurants",
-        h1: "An AI WhatsApp assistant that answers guests 24/7",
-        p: "Instantly answers common questions in the guest’s language. If unsure — it escalates to the host via email.",
-        cta1: "Get started free",
+        badge: "For rentals • hotels • tourism",
+        h1: "Gostly — an AI WhatsApp assistant for hospitality",
+        p: "Answers guests 24/7 in their language, reduces host workload, and safely escalates any unclear question when human help is needed.",
+        cta1: "Start free trial",
         cta2: "View pricing",
-        proof: ["No card", "5-min setup", "Safe handoff"],
+        proof: ["14-day free trial (no card)", "5-min setup", "Safe handoff"],
         featuresTitle: "What you get",
         features: [
           {
@@ -85,16 +81,16 @@ export default async function Landing({
             desc: "Guests get answers instantly—even when you’re offline.",
           },
           {
-            title: "Bilingual + auto language",
+            title: "Auto language (100+ languages)",
             desc: "Replies in the guest’s language without extra work.",
           },
           {
             title: "Human handoff",
-            desc: "If info is missing, it doesn’t guess—it emails the host.",
+            desc: "If info is missing, it doesn’t guess—it safely escalates to the host.",
           },
           {
-            title: "Logs & insights",
-            desc: "Messages are saved so you can improve your info and FAQs.",
+            title: "Analytics & insights",
+            desc: "Track trends, handoff rate, and top questions to improve your info and FAQs.",
           },
         ],
         howTitle: "How it works",
@@ -109,14 +105,15 @@ export default async function Landing({
           },
           {
             title: "Bot answers or escalates",
-            desc: "Safe answer or instant handoff to host.",
+            desc: "Fast reply from your knowledge—or safe handoff to the host.",
           },
         ],
         demoTitle: "Quick demo",
         demoQ: "TEST1: Do you have parking?",
         demoA: "Yes — free parking is available in front of the property.",
-        finalTitle: "Ready for your first users",
-        finalP: "Start free with 1 property. When you’re ready, we’ll move to production.",
+        finalTitle: "Start risk-free",
+        finalP:
+          "Try it free for 14 days (no card). Then pick Starter (€19) or Pro (€49) based on your properties and message volume.",
         finalCta: "Start now",
       };
 
@@ -300,6 +297,8 @@ export default async function Landing({
           </div>
         </div>
       </section>
+
+      <Analytics />
     </div>
   );
 }

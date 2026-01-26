@@ -5,7 +5,6 @@ import { supabaseAdmin } from "@/lib/supabase/admin";
 export const runtime = "nodejs"; // Stripe webhook treba Node runtime (ne Edge)
 
 const stripe = new Stripe(process.env.STRIPE_SECRET_KEY || "", {
-  // Nemoj hardcode-at apiVersion ako ti TS radi probleme
   // apiVersion: "2024-06-20",
 });
 
@@ -15,11 +14,12 @@ function requireEnv(name: string) {
   return v;
 }
 
-// pomoćna: map plan -> limit (možeš kasnije prebaciti u DB)
+// ✅ map plan -> limit
 function planToLimit(plan: string) {
   const p = (plan || "free").toLowerCase();
-  if (p === "business") return 3000;
-  if (p === "pro") return 1000;
+  if (p === "business") return 20000; // "custom" default (možeš promijeniti)
+  if (p === "pro") return 5000;
+  if (p === "starter") return 1000;
   return 100; // free
 }
 
@@ -28,12 +28,13 @@ export async function POST(req: Request) {
     const secretKey = requireEnv("STRIPE_SECRET_KEY");
     const webhookSecret = requireEnv("STRIPE_WEBHOOK_SECRET");
 
-    // init stripe (sigurno nakon env checka)
     const stripeClient = new Stripe(secretKey);
 
     const body = await req.text();
     const sig = req.headers.get("stripe-signature");
-    if (!sig) return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
+    if (!sig) {
+      return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
+    }
 
     let event: Stripe.Event;
     try {
@@ -43,16 +44,10 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid signature" }, { status: 400 });
     }
 
-    // ✅ Obradi relevantne eventove
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
 
-      const userId =
-        (session.metadata?.supabase_user_id as string | undefined) ||
-        (session.subscription && typeof session.subscription === "string"
-          ? undefined
-          : undefined);
-
+      const userId = (session.metadata?.supabase_user_id as string | undefined) || null;
       const plan = (session.metadata?.plan as string | undefined) || "pro";
 
       if (userId) {
@@ -65,7 +60,8 @@ export async function POST(req: Request) {
               user_id: userId,
               plan,
               monthly_limit,
-              stripe_customer_id: typeof session.customer === "string" ? session.customer : null,
+              stripe_customer_id:
+                typeof session.customer === "string" ? session.customer : null,
               stripe_subscription_id:
                 typeof session.subscription === "string" ? session.subscription : null,
             },
@@ -78,7 +74,10 @@ export async function POST(req: Request) {
       }
     }
 
-    if (event.type === "customer.subscription.updated" || event.type === "customer.subscription.created") {
+    if (
+      event.type === "customer.subscription.updated" ||
+      event.type === "customer.subscription.created"
+    ) {
       const sub = event.data.object as Stripe.Subscription;
 
       const userId = (sub.metadata?.supabase_user_id as string | undefined) || null;
@@ -125,7 +124,6 @@ export async function POST(req: Request) {
   }
 }
 
-// opcionalno: da GET ne vraća 404 kad otvoriš URL u browseru
 export async function GET() {
   return NextResponse.json({ ok: true });
 }
