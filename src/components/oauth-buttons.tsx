@@ -9,15 +9,9 @@ export function OAuthButtons({
   locale: string;
   next: string;
 }) {
-  async function start(provider: "google" | "apple") {
-    const res = await fetch("/auth/oauth", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ provider, next }),
-    });
-
-    const data = await res.json();
-    if (data?.url) window.location.href = data.url;
+  function goGoogle() {
+    const url = `/${locale}/auth/oauth?provider=google&next=${encodeURIComponent(next)}`;
+    window.location.href = url;
   }
 
   return (
@@ -26,18 +20,9 @@ export function OAuthButtons({
         type="button"
         variant="outline"
         className="w-full rounded-2xl bg-background/40 hover:bg-background/60"
-        onClick={() => start("google")}
+        onClick={goGoogle}
       >
         {locale === "hr" ? "Nastavi s Google" : "Continue with Google"}
-      </Button>
-
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full rounded-2xl bg-background/40 hover:bg-background/60"
-        onClick={() => start("apple")}
-      >
-        {locale === "hr" ? "Nastavi s Apple" : "Continue with Apple"}
       </Button>
 
       <div className="relative py-1">

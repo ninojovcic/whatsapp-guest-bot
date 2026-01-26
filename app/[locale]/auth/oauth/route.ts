@@ -5,7 +5,7 @@ import { createSupabaseServer } from "@/lib/supabase/server";
 
 export const dynamic = "force-dynamic";
 
-const ALLOWED_PROVIDERS = new Set(["google", "apple"]);
+const ALLOWED_PROVIDERS = new Set(["google"]);
 
 function getOrigin(req: NextRequest) {
   const proto =
@@ -18,28 +18,31 @@ function getOrigin(req: NextRequest) {
 
 export async function GET(
   req: NextRequest,
-  context: { params: Promise<{ locale: string }> }
+  { params }: { params: { locale: string } }
 ): Promise<Response> {
-  // ✅ In your setup, params is a Promise
-  await context.params;
+  const { locale } = params;
 
   const provider = (req.nextUrl.searchParams.get("provider") || "").toLowerCase();
   if (!ALLOWED_PROVIDERS.has(provider)) {
     return NextResponse.json(
-      { error: "Unsupported provider. Use ?provider=google or ?provider=apple" },
+      { error: "Unsupported provider. Use ?provider=google" },
       { status: 400 }
     );
   }
 
+  // where to go after callback
+  const next = req.nextUrl.searchParams.get("next") || `/${locale}/app`;
+
   const origin = getOrigin(req);
 
-  // 👇 ovo mora biti u Supabase Auth -> URL Configuration -> Redirect URLs
-  const redirectTo = `${origin}/auth/callback`;
+  // IMPORTANT: this must be allowed in Supabase Auth -> URL Configuration -> Redirect URLs
+  // Use locale-aware callback route, and keep "next" so callback can send user onward.
+  const redirectTo = `${origin}/${locale}/auth/callback?next=${encodeURIComponent(next)}`;
 
   const supabase = await createSupabaseServer();
 
   const { data, error } = await supabase.auth.signInWithOAuth({
-    provider: provider as "google" | "apple",
+    provider: "google",
     options: { redirectTo },
   });
 
