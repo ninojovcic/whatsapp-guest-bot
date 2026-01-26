@@ -60,7 +60,7 @@ export default async function LoginPage({
           </form>
 
           <div className="text-sm text-muted-foreground">
-            {locale === "hr" ? "Nemaš račun?" : "You don’t have an account?"}{" "}
+            {locale === "hr" ? "Nemaš račun?" : "Don’t have an account?"}{" "}
             <Link className="underline" href={`/${locale}/signup`}>
               {locale === "hr" ? "Registracija" : "Sign up"}
             </Link>
