@@ -17,7 +17,9 @@ export async function POST(
 
   const accept_terms_raw = form.get("accept_terms");
   const accept_terms =
-    accept_terms_raw === "on" || accept_terms_raw === "true" || accept_terms_raw === "1";
+    accept_terms_raw === "on" ||
+    accept_terms_raw === "true" ||
+    accept_terms_raw === "1";
 
   // ✅ Basic validation (server-side)
   if (!email || !password || !full_name) {
@@ -50,6 +52,9 @@ export async function POST(
 
   const supabase = await createSupabaseServer();
 
+  // ✅ IMPORTANT:
+  // full_name + company_name spremamo u user metadata
+  // a DB trigger (public.handle_new_user) ih prebacuje u public.profiles
   const { error } = await supabase.auth.signUp({
     email,
     password,

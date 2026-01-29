@@ -117,10 +117,10 @@ export default async function BillingPage({
             </div>
 
             <div className="rounded-2xl border border-foreground/10 bg-background/40 p-4">
-              <div className="text-xs text-muted-foreground">Stripe status</div>
+              <div className="text-xs text-muted-foreground">Stanje pretplate</div>
               <div className="mt-1 text-lg font-semibold">{status}</div>
               <div className="mt-1 text-xs text-muted-foreground">
-                stanje pretplate
+                Tvoje stanje pretplate
               </div>
             </div>
 
@@ -130,7 +130,7 @@ export default async function BillingPage({
               </div>
               <div className="mt-1 text-lg font-semibold">{nextDate}</div>
               <div className="mt-1 text-xs text-muted-foreground">
-                ovisi o Stripeu
+                Kraj tvoje trenutnog plana
               </div>
             </div>
           </div>
@@ -197,7 +197,7 @@ export default async function BillingPage({
                 <div className="flex flex-wrap items-center gap-2">
                   <div className="text-sm font-semibold">PRO</div>
                   <Badge className="rounded-full bg-foreground px-2.5 py-1 text-[11px] font-semibold text-background">
-                    preporučeno
+                    PREPORUČENO
                   </Badge>
                   {isPro ? <Badge variant="outline">trenutni</Badge> : null}
                 </div>
@@ -229,10 +229,6 @@ export default async function BillingPage({
                 <Link href={`/${locale}/contact`}>Kontakt</Link>
               </Button>
             </div>
-          </div>
-
-          <div className="text-xs text-muted-foreground">
-            Napomena: “Manage subscription” (Stripe Portal) dodajemo kao sljedeći korak.
           </div>
         </CardContent>
       </Card>
