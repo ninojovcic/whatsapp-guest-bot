@@ -46,15 +46,24 @@ export default async function LocaleLayout({
   // ✅ Plan badge (best effort)
   let planLabel: string | null = null;
 
-  if (user) {
-    const { data: profile } = await supabase
-      .from("billing_profiles")
-      .select("plan")
-      .eq("user_id", user.id)
-      .maybeSingle();
+  // ✅ Full name (profiles -> user_metadata -> email prefix)
+  let fullName: string | null = null;
 
-    planLabel = (profile?.plan || "free").toString().toUpperCase();
+  if (user) {
+    const [{ data: profile }, { data: billing }] = await Promise.all([
+      supabase.from("profiles").select("full_name").eq("id", user.id).maybeSingle(),
+      supabase.from("billing_profiles").select("plan").eq("user_id", user.id).maybeSingle(),
+    ]);
+
+    planLabel = (billing?.plan || "free").toString().toUpperCase();
+
+    fullName =
+      (profile?.full_name as string | null) ||
+      ((user.user_metadata?.full_name as string | undefined) ?? null) ||
+      (user.email ? user.email.split("@")[0] : null);
   }
+
+  const greetingName = fullName || (loc === "hr" ? "korisnik" : "there");
 
   return (
     <html lang={loc} className="dark">
@@ -147,6 +156,15 @@ export default async function LocaleLayout({
                 </>
               ) : (
                 <>
+                  {/* ✅ Greeting (desktop) */}
+                  <span className="hidden lg:inline-flex items-center rounded-full border border-foreground/10 bg-background/40 px-3 py-1 text-xs text-muted-foreground">
+                    {loc === "hr" ? "Bok," : "Hi,"}{" "}
+                    <span className="ml-1 font-semibold text-foreground">
+                      {greetingName}
+                    </span>
+                    <span className="ml-1">👋</span>
+                  </span>
+
                   <Badge variant="secondary" className="hidden sm:inline-flex">
                     {planLabel}
                   </Badge>
@@ -254,6 +272,15 @@ export default async function LocaleLayout({
                       </>
                     ) : (
                       <>
+                        {/* ✅ Greeting (mobile) */}
+                        <div className="rounded-2xl border border-foreground/10 bg-background/40 px-4 py-3 text-sm text-muted-foreground">
+                          {loc === "hr" ? "Bok," : "Hi,"}{" "}
+                          <span className="font-semibold text-foreground">
+                            {greetingName}
+                          </span>{" "}
+                          👋
+                        </div>
+
                         <div className="flex items-center justify-between rounded-2xl border border-foreground/10 bg-background/40 px-4 py-3">
                           <div className="text-sm">
                             <div className="text-xs text-muted-foreground">
@@ -292,139 +319,138 @@ export default async function LocaleLayout({
 
         {/* FOOTER */}
         <footer className="border-t border-foreground/10">
-  <div className="mx-auto max-w-6xl px-6 py-10">
-    <div className="grid gap-8 md:grid-cols-3">
-      {/* Brand / trust */}
-      <div className="space-y-3">
-        <Link href={`/${loc}`} className="text-sm font-semibold tracking-tight">
-          Gostly
-        </Link>
+          <div className="mx-auto max-w-6xl px-6 py-10">
+            <div className="grid gap-8 md:grid-cols-3">
+              {/* Brand / trust */}
+              <div className="space-y-3">
+                <Link href={`/${loc}`} className="text-sm font-semibold tracking-tight">
+                  Gostly
+                </Link>
 
-        {/* Trust badge (Stripe-ish) */}
-        <div className="inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-background/40 px-3 py-1 text-xs text-muted-foreground">
-          {/* blue check */}
-          <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-sky-500/15 text-sky-300 ring-1 ring-sky-500/30">
-            <svg
-              width="12"
-              height="12"
-              viewBox="0 0 24 24"
-              fill="none"
-              aria-hidden="true"
-            >
-              <path
-                d="M20 6L9 17l-5-5"
-                stroke="currentColor"
-                strokeWidth="2.5"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </svg>
-          </span>
+                {/* Trust badge (Stripe-ish) */}
+                <div className="inline-flex items-center gap-2 rounded-full border border-foreground/10 bg-background/40 px-3 py-1 text-xs text-muted-foreground">
+                  {/* blue check */}
+                  <span className="inline-flex h-5 w-5 items-center justify-center rounded-full bg-sky-500/15 text-sky-300 ring-1 ring-sky-500/30">
+                    <svg
+                      width="12"
+                      height="12"
+                      viewBox="0 0 24 24"
+                      fill="none"
+                      aria-hidden="true"
+                    >
+                      <path
+                        d="M20 6L9 17l-5-5"
+                        stroke="currentColor"
+                        strokeWidth="2.5"
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                      />
+                    </svg>
+                  </span>
 
-          {/* ✅ SAFE default copy (edit if you truly are certified) */}
-          <span>Službena Whatsapp Poslovna Platforma</span>
+                  {/* ✅ SAFE default copy (edit if you truly are certified) */}
+                  <span>Službena Whatsapp Poslovna Platforma</span>
 
- 
-          {/*
-            Ako ste stvarno certificirani provider, zamijeni gore tekst sa:
-            "Službena WhatsApp Poslovna Platforma (Certificirani Provider Tehnologije)"
-          */}
-        </div>
+                  {/*
+                    Ako ste stvarno certificirani provider, zamijeni gore tekst sa:
+                    "Službena WhatsApp Poslovna Platforma (Certificirani Provider Tehnologije)"
+                  */}
+                </div>
 
-        <p className="text-sm text-muted-foreground">
-          AI WhatsApp asistent za apartmane, hotele i turizam.
-        </p>
-      </div>
+                <p className="text-sm text-muted-foreground">
+                  AI WhatsApp asistent za apartmane, hotele i turizam.
+                </p>
+              </div>
 
-      {/* Links 1 */}
-      <div className="grid gap-2 text-sm">
-        <div className="text-xs font-semibold tracking-wide text-muted-foreground">
-          Proizvod
-        </div>
-        <Link
-          href={`/${loc}#kako-radi`}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          Kako radi?
-        </Link>
-        <Link
-          href={`/${loc}/pricing`}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          {tt.nav.pricing}
-        </Link>
-        <Link
-          href={`/${loc}/app/properties`}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          {tt.nav.dashboard}
-        </Link>
-      </div>
+              {/* Links 1 */}
+              <div className="grid gap-2 text-sm">
+                <div className="text-xs font-semibold tracking-wide text-muted-foreground">
+                  Proizvod
+                </div>
+                <Link
+                  href={`/${loc}#kako-radi`}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  Kako radi?
+                </Link>
+                <Link
+                  href={`/${loc}/pricing`}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  {tt.nav.pricing}
+                </Link>
+                <Link
+                  href={`/${loc}/app/properties`}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  {tt.nav.dashboard}
+                </Link>
+              </div>
 
-      {/* Links 2 */}
-      <div className="grid gap-2 text-sm md:justify-items-end">
-        <div className="text-xs font-semibold tracking-wide text-muted-foreground">
-          Račun
-        </div>
+              {/* Links 2 */}
+              <div className="grid gap-2 text-sm md:justify-items-end">
+                <div className="text-xs font-semibold tracking-wide text-muted-foreground">
+                  Račun
+                </div>
 
-        {!user ? (
-          <>
-            <Link
-              href={`/${loc}/login`}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              {tt.nav.login}
-            </Link>
-            <Link
-              href={`/${loc}/signup`}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Isprobaj odmah
-            </Link>
-          </>
-        ) : (
-          <>
-            <Link
-              href={`/${loc}/billing`}
-              className="text-muted-foreground hover:text-foreground"
-            >
-              Plan / Billing
-            </Link>
-            <form action={`/${loc}/auth/sign-out`} method="post">
-              <button
-                type="submit"
-                className="text-left text-muted-foreground hover:text-foreground"
-              >
-                {tt.nav.logout}
-              </button>
-            </form>
-          </>
-        )}
+                {!user ? (
+                  <>
+                    <Link
+                      href={`/${loc}/login`}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      {tt.nav.login}
+                    </Link>
+                    <Link
+                      href={`/${loc}/signup`}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      Isprobaj odmah
+                    </Link>
+                  </>
+                ) : (
+                  <>
+                    <Link
+                      href={`/${loc}/billing`}
+                      className="text-muted-foreground hover:text-foreground"
+                    >
+                      Plan / Billing
+                    </Link>
+                    <form action={`/${loc}/auth/sign-out`} method="post">
+                      <button
+                        type="submit"
+                        className="text-left text-muted-foreground hover:text-foreground"
+                      >
+                        {tt.nav.logout}
+                      </button>
+                    </form>
+                  </>
+                )}
 
-        {/* Optional: add Contact if you have the route */}
-        <Link
-          href={`/${loc}/contact`}
-          className="text-muted-foreground hover:text-foreground"
-        >
-          Kontakt
-        </Link>
-      </div>
-    </div>
+                {/* Optional: add Contact if you have the route */}
+                <Link
+                  href={`/${loc}/contact`}
+                  className="text-muted-foreground hover:text-foreground"
+                >
+                  Kontakt
+                </Link>
+              </div>
+            </div>
 
-    <div className="mt-10 flex flex-col gap-2 border-t border-foreground/10 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
-      <div>© {new Date().getFullYear()} Gostly</div>
-      <div className="flex flex-wrap gap-x-4 gap-y-2">
-        {/* stavi ove linkove samo ako postoje u projektu */}
-        <Link href={`/${loc}/privacy`} className="hover:text-foreground">
-          Privatnost
-        </Link>
-        <Link href={`/${loc}/terms`} className="hover:text-foreground">
-          Uvjeti
-        </Link>
-      </div>
-    </div>
-  </div>
-</footer>
+            <div className="mt-10 flex flex-col gap-2 border-t border-foreground/10 pt-6 text-xs text-muted-foreground sm:flex-row sm:items-center sm:justify-between">
+              <div>© {new Date().getFullYear()} Gostly</div>
+              <div className="flex flex-wrap gap-x-4 gap-y-2">
+                {/* stavi ove linkove samo ako postoje u projektu */}
+                <Link href={`/${loc}/privacy`} className="hover:text-foreground">
+                  Privatnost
+                </Link>
+                <Link href={`/${loc}/terms`} className="hover:text-foreground">
+                  Uvjeti
+                </Link>
+              </div>
+            </div>
+          </div>
+        </footer>
       </body>
     </html>
   );
