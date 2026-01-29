@@ -43,12 +43,12 @@ export default async function BillingPage({
     .maybeSingle();
 
   const plan = String(profile?.plan ?? "free").toLowerCase();
-  const limit = Number(profile?.monthly_limit ?? 100);
+  const limit = Number(profile?.monthly_limit ?? 0);
   const status = profile?.stripe_status ?? "—";
   const nextDate = formatDate(profile?.current_period_end ?? null);
 
   const planLabel = plan.toUpperCase();
-  const isFree = plan === "free";
+  const isFree = plan === "free" || limit <= 0;
   const isStarter = plan === "starter";
   const isPro = plan === "pro";
   const isBusiness = plan === "business";
@@ -70,7 +70,7 @@ export default async function BillingPage({
         <div className="min-w-0">
           <h1 className="text-2xl font-semibold">Plan & naplata</h1>
           <p className="mt-1 text-sm text-muted-foreground">
-            Upravljaj pretplatom i limitima poruka.
+            Odavde pokrećeš trial i upravljaš planom.
           </p>
         </div>
 
@@ -101,7 +101,10 @@ export default async function BillingPage({
           <div className="flex items-center gap-2">
             <Badge variant={pill.variant}>{pill.text}</Badge>
             {!isFree ? (
-              <Badge variant="outline" className="border-foreground/10 bg-background/40">
+              <Badge
+                variant="outline"
+                className="border-foreground/10 bg-background/40"
+              >
                 aktivan
               </Badge>
             ) : null}
@@ -109,6 +112,14 @@ export default async function BillingPage({
         </CardHeader>
 
         <CardContent className="space-y-4">
+          {isFree ? (
+            <div className="rounded-2xl border border-foreground/10 bg-background/40 p-4 text-sm text-muted-foreground">
+              Trenutno si na <span className="font-semibold">FREE</span> (0 poruka).
+              Da bi bot slao odgovore gostima, pokreni{" "}
+              <span className="font-semibold">14 dana trial</span> na STARTER ili PRO planu.
+            </div>
+          ) : null}
+
           <div className="grid gap-3 md:grid-cols-3">
             <div className="rounded-2xl border border-foreground/10 bg-background/40 p-4">
               <div className="text-xs text-muted-foreground">Mjesečni limit</div>
@@ -120,7 +131,7 @@ export default async function BillingPage({
               <div className="text-xs text-muted-foreground">Stanje pretplate</div>
               <div className="mt-1 text-lg font-semibold">{status}</div>
               <div className="mt-1 text-xs text-muted-foreground">
-                Tvoje stanje pretplate
+                Status iz Stripe-a (best-effort)
               </div>
             </div>
 
@@ -130,7 +141,7 @@ export default async function BillingPage({
               </div>
               <div className="mt-1 text-lg font-semibold">{nextDate}</div>
               <div className="mt-1 text-xs text-muted-foreground">
-                Kraj tvoje trenutnog plana
+                Datum isteka trenutnog perioda
               </div>
             </div>
           </div>
@@ -157,7 +168,9 @@ export default async function BillingPage({
       {/* Upgrade */}
       <Card className="rounded-3xl border border-foreground/10 bg-background/55 backdrop-blur">
         <CardHeader className="flex-row items-center justify-between gap-3">
-          <CardTitle className="text-base">Nadogradnja</CardTitle>
+          <CardTitle className="text-base">
+            {isFree ? "Pokreni trial" : "Promijeni plan"}
+          </CardTitle>
           <Badge variant="secondary">14 dana trial</Badge>
         </CardHeader>
 
@@ -180,14 +193,13 @@ export default async function BillingPage({
                 variant="outline"
                 className="rounded-2xl"
               >
-                Odaberi STARTER
+                {isFree ? "Pokreni trial" : "Odaberi STARTER"}
               </UpgradeButton>
             </div>
           </div>
 
           {/* PRO (highlight) */}
           <div className="relative overflow-hidden rounded-2xl border border-white/20 bg-background/40 p-4 shadow-[0_1px_0_rgba(255,255,255,0.06),0_26px_90px_-45px_rgba(34,197,94,0.45)]">
-            {/* soft inner glow */}
             <div className="pointer-events-none absolute inset-0">
               <div className="absolute -top-24 left-1/2 h-72 w-[40rem] -translate-x-1/2 rounded-full bg-[radial-gradient(circle,rgba(34,197,94,0.18),transparent_62%)] blur-2xl" />
             </div>
@@ -207,7 +219,7 @@ export default async function BillingPage({
               </div>
 
               <UpgradeButton plan="pro" className="rounded-2xl">
-                Odaberi PRO
+                {isFree ? "Pokreni trial" : "Odaberi PRO"}
               </UpgradeButton>
             </div>
           </div>

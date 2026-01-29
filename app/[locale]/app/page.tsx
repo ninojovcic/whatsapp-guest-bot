@@ -34,12 +34,11 @@ export default async function PropertiesPage({
 
   if (!user) redirect(`/${locale}/login`);
 
-  // --- USAGE BANNER DATA (billing_profiles + usage_monthly) ---
   const month = monthKeyUTC();
 
-  // 1) billing profile (ensure exists)
+  // 1) billing profile (best-effort; ne radimo insert ovdje)
   let plan = "free";
-  let limit = 100;
+  let limit = 0;
 
   const { data: profile, error: profileErr } = await supabase
     .from("billing_profiles")
@@ -51,24 +50,8 @@ export default async function PropertiesPage({
     console.error("billing_profiles fetch error:", profileErr);
   }
 
-  if (!profile) {
-    // create default profile if missing
-    const { data: created, error: createErr } = await supabase
-      .from("billing_profiles")
-      .insert({ user_id: user.id, plan: "free", monthly_limit: 100 })
-      .select("plan, monthly_limit")
-      .single();
-
-    if (createErr) {
-      console.error("billing_profiles create error:", createErr);
-    } else {
-      plan = created?.plan ?? plan;
-      limit = Number(created?.monthly_limit ?? limit);
-    }
-  } else {
-    plan = profile.plan ?? plan;
-    limit = Number(profile.monthly_limit ?? limit);
-  }
+  plan = (profile?.plan ?? plan).toString().toLowerCase();
+  limit = Number(profile?.monthly_limit ?? 0);
 
   // 2) usage row
   const { data: usageRow, error: usageErr } = await supabase
@@ -84,9 +67,10 @@ export default async function PropertiesPage({
 
   const used = Number(usageRow?.used ?? 0);
 
-  const pct = limit > 0 ? clamp(Math.round((used / limit) * 100), 0, 100) : 0;
-  const nearLimit = limit > 0 && used >= Math.floor(limit * 0.8);
-  const atLimit = limit > 0 && used >= limit;
+  const hasPlan = limit > 0;
+  const pct = hasPlan ? clamp(Math.round((used / limit) * 100), 0, 100) : 0;
+  const nearLimit = hasPlan && used >= Math.floor(limit * 0.8);
+  const atLimit = hasPlan && used >= limit;
 
   // --- PROPERTIES LIST ---
   const { data: properties, error } = await supabase
@@ -144,13 +128,17 @@ export default async function PropertiesPage({
               <Button asChild variant="outline" className="rounded-2xl">
                 <Link href={`/${locale}/billing`}>Plan & naplata</Link>
               </Button>
+
+              {/* Ako nema plana/triala — CTA ide na billing (start trial) */}
               <Button asChild className="rounded-2xl">
-                <Link href={`/${locale}/pricing`}>Nadogradi</Link>
+                <Link href={`/${locale}/billing`}>
+                  {hasPlan ? "Upravljaj planom" : "Pokreni trial"}
+                </Link>
               </Button>
             </div>
           </div>
 
-          {/* progress bar (soft style) */}
+          {/* progress bar */}
           <div className="h-2 w-full overflow-hidden rounded-full bg-muted/60 ring-1 ring-border">
             <div
               className="h-full rounded-full bg-foreground transition-all"
@@ -158,10 +146,16 @@ export default async function PropertiesPage({
             />
           </div>
 
-          {atLimit ? (
+          {!hasPlan ? (
+            <div className="rounded-2xl border border-foreground/10 bg-background/40 p-4 text-sm text-muted-foreground">
+              Trenutno si na <span className="font-semibold">FREE</span> (0 poruka).
+              Pokreni <span className="font-semibold">14 dana trial</span> da bi bot
+              mogao odgovarati gostima.
+            </div>
+          ) : atLimit ? (
             <div className="rounded-2xl border border-foreground/10 bg-background/40 p-4 text-sm text-destructive">
               Dosegnuo si limit. Bot blokira nove poruke dok ne krene novi mjesec
-              ili dok ne nadogradiš plan.
+              ili dok ne promijeniš plan.
             </div>
           ) : nearLimit ? (
             <div className="rounded-2xl border border-foreground/10 bg-background/40 p-4 text-sm text-muted-foreground">
@@ -208,7 +202,8 @@ export default async function PropertiesPage({
                         </Badge>
                       </div>
                       <div className="mt-1 text-xs text-muted-foreground">
-                        Kreirano: {new Date(p.created_at).toLocaleString("hr-HR")}
+                        Kreirano:{" "}
+                        {new Date(p.created_at).toLocaleString("hr-HR")}
                       </div>
                     </div>
 
@@ -224,7 +219,9 @@ export default async function PropertiesPage({
                       </Button>
 
                       <Button asChild className="rounded-2xl">
-                        <Link href={`/${locale}/app/properties/${p.id}`}>Uredi</Link>
+                        <Link href={`/${locale}/app/properties/${p.id}`}>
+                          Uredi
+                        </Link>
                       </Button>
                     </div>
                   </div>

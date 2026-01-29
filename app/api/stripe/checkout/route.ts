@@ -18,6 +18,13 @@ function getLocaleFromReferer(referer: string | null) {
   }
 }
 
+function parsePlan(input: unknown): Plan {
+  const p = String(input || "pro").toLowerCase();
+  if (p === "starter") return "starter";
+  if (p === "business") return "business";
+  return "pro";
+}
+
 export async function POST(req: Request) {
   try {
     if (!process.env.STRIPE_SECRET_KEY) {
@@ -36,13 +43,12 @@ export async function POST(req: Request) {
     const supabase = await createSupabaseServer();
     const { data: userRes } = await supabase.auth.getUser();
     const user = userRes.user;
-    if (!user) return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    if (!user) {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
 
     const body = await req.json().catch(() => ({}));
-
-    const planRaw = String(body?.plan || "pro").toLowerCase();
-    const plan: Plan =
-      planRaw === "starter" || planRaw === "business" ? planRaw : "pro";
+    const plan = parsePlan(body?.plan);
 
     // locale: prvo body.locale, pa referer, fallback hr
     const bodyLocale = String(body?.locale || "").toLowerCase();
@@ -72,7 +78,29 @@ export async function POST(req: Request) {
       );
     }
 
+    // ✅ ensure profile exists (ali bez free limita – to je sad u usage.ts)
     const profile = await ensureBillingProfile(supabaseAdmin as any, user.id);
+
+    const now = new Date();
+    const trialActive =
+      !!profile.current_period_end &&
+      new Date(profile.current_period_end).getTime() > now.getTime();
+
+    const subActive = !!profile.stripe_subscription_id;
+
+    // ✅ zaštita: ne radimo novi checkout ako već ima aktivan trial/pretplatu
+    if (trialActive || subActive) {
+      return NextResponse.json(
+        {
+          error:
+            locale === "hr"
+              ? "Već imaš aktivan trial ili pretplatu."
+              : "You already have an active trial or subscription.",
+        },
+        { status: 409 }
+      );
+    }
+
     let stripeCustomerId = (profile as any)?.stripe_customer_id as string | null;
 
     if (!stripeCustomerId) {
@@ -92,15 +120,14 @@ export async function POST(req: Request) {
     const siteUrl = process.env.NEXT_PUBLIC_SITE_URL;
 
     // ✅ Trial: 14 dana
-    // Napomena: hoće li Stripe tražiti karticu ovisi o Stripe postavkama / payment methods.
-    // Ovo je "najbliže" modelu "trial bez kartice" kroz Checkout.
+    // NOTE: "trial bez kartice" ovisi o Stripe postavkama; ovo je najbolja praksa u Checkoutu.
     const session = await stripe.checkout.sessions.create({
       mode: "subscription",
       customer: stripeCustomerId,
       line_items: [{ price: priceId, quantity: 1 }],
       allow_promotion_codes: true,
 
-      // ✅ bitno: vrati usera na ispravan locale
+      // ✅ vrati usera na ispravan locale
       success_url: `${siteUrl}/${locale}/billing?success=1`,
       cancel_url: `${siteUrl}/${locale}/billing?canceled=1`,
 
@@ -110,8 +137,7 @@ export async function POST(req: Request) {
         trial_period_days: 14,
       },
 
-      // Stripe feature (ako je dostupno na accountu):
-      // tijekom trial-a može smanjiti potrebu za payment methodom (ovisno o postavkama).
+      // Ako Stripe account podržava:
       payment_method_collection: "if_required",
     });
 

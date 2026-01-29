@@ -169,10 +169,6 @@ export default async function LocaleLayout({
                     {planLabel}
                   </Badge>
 
-                  <Button asChild variant="ghost" size="sm">
-                    <Link href={`/${loc}/billing`}>Plan / Billing</Link>
-                  </Button>
-
                   <form action={`/${loc}/auth/sign-out`} method="post">
                     <Button type="submit" variant="outline" size="sm">
                       {tt.nav.logout}
