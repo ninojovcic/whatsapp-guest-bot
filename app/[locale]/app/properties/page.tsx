@@ -40,48 +40,45 @@ export default async function PropertiesPage({
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
           <h1 className="text-2xl font-semibold">Objekti</h1>
-          <p className="text-sm text-muted-foreground">
+          <p className="mt-1 text-sm text-muted-foreground">
             Upravljaj objektima i pregledaj poruke gostiju.
           </p>
         </div>
 
-        <Button asChild>
-          <Link href={`/${locale}/app/properties/new`}>Novi objekt</Link>
+        <Button asChild className="rounded-2xl">
+          <Link href={`/${locale}/app/properties/new`}>+ Novi objekt</Link>
         </Button>
       </div>
 
       {/* List */}
-      <Card>
-        <CardHeader className="flex-row items-center justify-between">
-          <CardTitle>Popis objekata</CardTitle>
+      <Card className="rounded-3xl border border-foreground/10 bg-background/55 backdrop-blur">
+        <CardHeader className="flex-row items-center justify-between gap-3">
+          <CardTitle className="text-base">Popis objekata</CardTitle>
           <Badge variant="secondary">{rows.length} ukupno</Badge>
         </CardHeader>
 
         <CardContent className="space-y-3">
           {rows.length === 0 ? (
-            <div className="rounded-lg border p-6 text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-foreground/10 bg-background/40 p-6 text-sm text-muted-foreground">
               Još nemaš nijedan objekt. Kreiraj prvi objekt.
             </div>
           ) : (
             <div className="space-y-3">
               {rows.map((p) => {
-                // Ispis uputa (za vlasnika)
                 const printPath = `/${locale}/app/properties/${p.id}/instructions`;
-
-                // Javni link za goste
                 const guestPath = `/${locale}/g/${p.code}`;
 
                 return (
                   <div
                     key={p.id}
-                    className="flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-3 rounded-2xl border border-foreground/10 bg-background/40 p-4 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="truncate text-base font-semibold">
+                        <div className="truncate text-sm font-semibold">
                           {p.name}
                         </div>
                         <Badge variant="outline" className="font-mono">
@@ -95,7 +92,7 @@ export default async function PropertiesPage({
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" asChild>
+                      <Button asChild variant="outline" className="rounded-2xl">
                         <Link
                           href={`/${locale}/app/properties/${p.id}/messages`}
                         >
@@ -103,13 +100,13 @@ export default async function PropertiesPage({
                         </Link>
                       </Button>
 
-                      <Button variant="outline" asChild>
+                      <Button asChild variant="outline" className="rounded-2xl">
                         <Link href={printPath}>Ispis</Link>
                       </Button>
 
                       <CopyLinkButton path={guestPath} />
 
-                      <Button asChild>
+                      <Button asChild className="rounded-2xl">
                         <Link href={`/${locale}/app/properties/${p.id}`}>
                           Uredi
                         </Link>

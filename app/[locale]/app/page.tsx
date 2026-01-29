@@ -103,25 +103,25 @@ export default async function PropertiesPage({
 
   return (
     <div className="space-y-6">
-      <div className="flex flex-wrap items-center justify-between gap-3">
-        <div>
-          <h1 className="text-2xl font-semibold">Objekti</h1>
-          <p className="text-sm text-muted-foreground">
-            Uređuj objekte i pregledaj poruke gostiju.
+      {/* Header */}
+      <div className="flex flex-wrap items-start justify-between gap-3">
+        <div className="min-w-0">
+          <h1 className="text-2xl font-semibold">Nadzorna ploča</h1>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Upravljaj objektima i pregledaj poruke gostiju.
           </p>
         </div>
 
-        <Button asChild>
-          <Link href={`/${locale}/app/properties/new`}>Novi objekt</Link>
+        <Button asChild className="rounded-2xl">
+          <Link href={`/${locale}/app/properties/new`}>+ Novi objekt</Link>
         </Button>
       </div>
 
       {/* ✅ Usage banner */}
-      <Card>
+      <Card className="rounded-3xl border border-foreground/10 bg-background/55 backdrop-blur">
         <CardHeader className="flex-row items-center justify-between gap-3">
-          <CardTitle className="text-lg">Mjesečna potrošnja</CardTitle>
+          <CardTitle className="text-base">Mjesečna potrošnja</CardTitle>
 
-          {/* Badge variant-safe (boja preko className) */}
           <Badge
             variant={nearLimit || atLimit ? "secondary" : "outline"}
             className={atLimit ? "text-destructive" : undefined}
@@ -130,8 +130,8 @@ export default async function PropertiesPage({
           </Badge>
         </CardHeader>
 
-        <CardContent className="space-y-3">
-          <div className="flex flex-wrap items-center justify-between gap-2">
+        <CardContent className="space-y-4">
+          <div className="flex flex-wrap items-center justify-between gap-3">
             <div className="text-sm">
               Poruke ovaj mjesec:{" "}
               <span className="font-semibold">
@@ -140,18 +140,18 @@ export default async function PropertiesPage({
               <span className="text-muted-foreground">({month})</span>
             </div>
 
-            <div className="flex gap-2">
-              <Button variant="outline" asChild>
+            <div className="flex flex-wrap gap-2">
+              <Button asChild variant="outline" className="rounded-2xl">
                 <Link href={`/${locale}/billing`}>Plan & naplata</Link>
               </Button>
-              <Button asChild>
+              <Button asChild className="rounded-2xl">
                 <Link href={`/${locale}/pricing`}>Nadogradi</Link>
               </Button>
             </div>
           </div>
 
-          {/* progress bar */}
-          <div className="h-2 w-full overflow-hidden rounded-full bg-muted">
+          {/* progress bar (soft style) */}
+          <div className="h-2 w-full overflow-hidden rounded-full bg-muted/60 ring-1 ring-border">
             <div
               className="h-full rounded-full bg-foreground transition-all"
               style={{ width: `${pct}%` }}
@@ -159,16 +159,17 @@ export default async function PropertiesPage({
           </div>
 
           {atLimit ? (
-            <div className="text-sm text-destructive">
-              Dosegnuo si limit. Bot blokira nove poruke dok ne krene novi mjesec ili
-              dok ne nadogradiš plan.
+            <div className="rounded-2xl border border-foreground/10 bg-background/40 p-4 text-sm text-destructive">
+              Dosegnuo si limit. Bot blokira nove poruke dok ne krene novi mjesec
+              ili dok ne nadogradiš plan.
             </div>
           ) : nearLimit ? (
-            <div className="text-sm text-muted-foreground">
-              Blizu si limita. Razmisli o nadogradnji kako gosti ne bi dobili blokadu.
+            <div className="rounded-2xl border border-foreground/10 bg-background/40 p-4 text-sm text-muted-foreground">
+              Blizu si limita. Razmisli o nadogradnji kako gosti ne bi dobili
+              blokadu.
             </div>
           ) : (
-            <div className="text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-foreground/10 bg-background/40 p-4 text-sm text-muted-foreground">
               Sve je OK. Limit se resetira svaki mjesec.
             </div>
           )}
@@ -176,15 +177,15 @@ export default async function PropertiesPage({
       </Card>
 
       {/* Properties list */}
-      <Card>
-        <CardHeader className="flex-row items-center justify-between">
-          <CardTitle>Popis</CardTitle>
+      <Card className="rounded-3xl border border-foreground/10 bg-background/55 backdrop-blur">
+        <CardHeader className="flex-row items-center justify-between gap-3">
+          <CardTitle className="text-base">Popis</CardTitle>
           <Badge variant="secondary">{rows.length} ukupno</Badge>
         </CardHeader>
 
         <CardContent className="space-y-3">
           {rows.length === 0 ? (
-            <div className="rounded-lg border p-6 text-sm text-muted-foreground">
+            <div className="rounded-2xl border border-foreground/10 bg-background/40 p-6 text-sm text-muted-foreground">
               Nema objekata. Kreiraj prvi objekt.
             </div>
           ) : (
@@ -195,11 +196,13 @@ export default async function PropertiesPage({
                 return (
                   <div
                     key={p.id}
-                    className="flex flex-col gap-3 rounded-xl border p-4 sm:flex-row sm:items-center sm:justify-between"
+                    className="flex flex-col gap-3 rounded-2xl border border-foreground/10 bg-background/40 p-4 sm:flex-row sm:items-center sm:justify-between"
                   >
                     <div className="min-w-0">
                       <div className="flex flex-wrap items-center gap-2">
-                        <div className="truncate text-base font-semibold">{p.name}</div>
+                        <div className="truncate text-sm font-semibold">
+                          {p.name}
+                        </div>
                         <Badge variant="outline" className="font-mono">
                           {p.code}
                         </Badge>
@@ -210,17 +213,17 @@ export default async function PropertiesPage({
                     </div>
 
                     <div className="flex flex-wrap gap-2">
-                      <Button variant="outline" asChild>
+                      <Button asChild variant="outline" className="rounded-2xl">
                         <Link href={`/${locale}/app/properties/${p.id}/messages`}>
                           Poruke
                         </Link>
                       </Button>
 
-                      <Button variant="outline" asChild>
+                      <Button asChild variant="outline" className="rounded-2xl">
                         <Link href={instructionsPath}>Upute / Print</Link>
                       </Button>
 
-                      <Button asChild>
+                      <Button asChild className="rounded-2xl">
                         <Link href={`/${locale}/app/properties/${p.id}`}>Uredi</Link>
                       </Button>
                     </div>
