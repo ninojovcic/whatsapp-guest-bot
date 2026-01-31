@@ -26,7 +26,14 @@ export default async function BillingPage({
   searchParams,
 }: {
   params: Promise<{ locale: string }>;
-  searchParams: Promise<{ success?: string; canceled?: string }>;
+  searchParams: Promise<{
+    success?: string;
+    canceled?: string;
+
+    cancel_requested?: string;
+    cancel_error?: string;
+    cancel_none?: string;
+  }>;
 }) {
   const { locale } = await params;
   const sp = await searchParams;
@@ -38,14 +45,20 @@ export default async function BillingPage({
 
   const { data: profile } = await supabase
     .from("billing_profiles")
-    .select("plan, monthly_limit, stripe_status, current_period_end")
+    .select("plan, monthly_limit, stripe_status, current_period_end, stripe_subscription_id")
     .eq("user_id", user.id)
     .maybeSingle();
 
   const plan = String(profile?.plan ?? "free").toLowerCase();
   const limit = Number(profile?.monthly_limit ?? 0);
-  const status = profile?.stripe_status ?? "—";
+
+  // ✅ normalize status (Stripe je obično lowercase; ovo štiti i od ručnih SQL upisa)
+  const statusRaw = String(profile?.stripe_status ?? "—");
+  const status = statusRaw.toLowerCase();
+
   const nextDate = formatDate(profile?.current_period_end ?? null);
+
+  const hasSub = Boolean(profile?.stripe_subscription_id);
 
   const planLabel = plan.toUpperCase();
   const isFree = plan === "free" || limit <= 0;
@@ -62,6 +75,11 @@ export default async function BillingPage({
   };
 
   const pill = planPill();
+
+  // ✅ Kada prikazati “Otkaži plan”
+  // (trialing/active/past_due su normalni cancelable stateovi)
+  const cancelableStatuses = new Set(["trialing", "active", "past_due"]);
+  const canCancel = hasSub && cancelableStatuses.has(status);
 
   return (
     <div className="space-y-6">
@@ -93,6 +111,25 @@ export default async function BillingPage({
         </div>
       ) : null}
 
+      {sp?.cancel_requested ? (
+        <div className="rounded-2xl border border-foreground/10 bg-background/55 p-4 text-sm backdrop-blur">
+          ✅ Otkaz je zatražen. Pretplata će prestati na kraju trenutnog perioda
+          (trial ili pretplata).
+        </div>
+      ) : null}
+
+      {sp?.cancel_none ? (
+        <div className="rounded-2xl border border-foreground/10 bg-background/55 p-4 text-sm backdrop-blur">
+          ℹ️ Nema aktivne pretplate za otkazati.
+        </div>
+      ) : null}
+
+      {sp?.cancel_error ? (
+        <div className="rounded-2xl border border-foreground/10 bg-background/55 p-4 text-sm backdrop-blur">
+          ❗ Nismo uspjeli otkazati pretplatu. Pokušaj ponovno ili se javi supportu.
+        </div>
+      ) : null}
+
       {/* Current plan */}
       <Card className="rounded-3xl border border-foreground/10 bg-background/55 backdrop-blur">
         <CardHeader className="flex-row items-center justify-between gap-3">
@@ -105,7 +142,7 @@ export default async function BillingPage({
                 variant="outline"
                 className="border-foreground/10 bg-background/40"
               >
-                aktivan
+                {statusRaw}
               </Badge>
             ) : null}
           </div>
@@ -129,7 +166,7 @@ export default async function BillingPage({
 
             <div className="rounded-2xl border border-foreground/10 bg-background/40 p-4">
               <div className="text-xs text-muted-foreground">Stanje pretplate</div>
-              <div className="mt-1 text-lg font-semibold">{status}</div>
+              <div className="mt-1 text-lg font-semibold">{statusRaw}</div>
               <div className="mt-1 text-xs text-muted-foreground">
                 Status iz Stripe-a (best-effort)
               </div>
@@ -160,8 +197,27 @@ export default async function BillingPage({
               <Button asChild className="rounded-2xl">
                 <Link href={`/${locale}/contact`}>Kontakt</Link>
               </Button>
+
+              {/* ✅ Cancel button */}
+              {canCancel ? (
+                <form action={`/api/stripe/cancel?locale=${locale}`} method="post">
+                  <Button
+                    type="submit"
+                    variant="outline"
+                    className="rounded-2xl border-destructive/30 text-destructive hover:bg-destructive/10"
+                  >
+                    Otkaži plan
+                  </Button>
+                </form>
+              ) : null}
             </div>
           </div>
+
+          {canCancel ? (
+            <div className="text-xs text-muted-foreground">
+              Otkaz vrijedi na kraju trenutnog perioda (trial ili pretplata).
+            </div>
+          ) : null}
         </CardContent>
       </Card>
 
@@ -188,11 +244,7 @@ export default async function BillingPage({
                 </div>
               </div>
 
-              <UpgradeButton
-                plan="starter"
-                variant="outline"
-                className="rounded-2xl"
-              >
+              <UpgradeButton plan="starter" variant="outline" className="rounded-2xl">
                 {isFree ? "Pokreni trial" : "Odaberi STARTER"}
               </UpgradeButton>
             </div>

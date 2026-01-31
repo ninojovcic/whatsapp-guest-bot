@@ -38,10 +38,7 @@ export async function POST(req: Request) {
     const body = await req.text();
     const sig = req.headers.get("stripe-signature");
     if (!sig) {
-      return NextResponse.json(
-        { error: "Missing stripe-signature" },
-        { status: 400 }
-      );
+      return NextResponse.json({ error: "Missing stripe-signature" }, { status: 400 });
     }
 
     let event: Stripe.Event;
@@ -58,19 +55,19 @@ export async function POST(req: Request) {
     if (event.type === "checkout.session.completed") {
       const session = event.data.object as Stripe.Checkout.Session;
 
-      const userId = (session.metadata?.supabase_user_id as string | undefined) || null;
+      const userId =
+        (session.metadata?.supabase_user_id as string | undefined) || null;
       const plan = (session.metadata?.plan as string | undefined) || "pro";
 
-      // NOTE: checkout.session.completed nije uvijek dovoljan za trial state,
-      // ali je ok za spremiti customer/sub id ako postoji.
       if (userId) {
         const { error } = await supabaseAdmin
           .from("billing_profiles")
           .upsert(
             {
               user_id: userId,
-              plan, // privremeno, subscription event će potvrditi
+              plan, // best-effort (subscription event je source of truth)
               monthly_limit: planToLimit(plan),
+
               stripe_customer_id:
                 typeof session.customer === "string" ? session.customer : null,
               stripe_subscription_id:
@@ -79,7 +76,9 @@ export async function POST(req: Request) {
             { onConflict: "user_id" }
           );
 
-        if (error) console.error("billing_profiles upsert (checkout) error:", error);
+        if (error) {
+          console.error("billing_profiles upsert (checkout) error:", error);
+        }
       }
     }
 
@@ -98,8 +97,12 @@ export async function POST(req: Request) {
       if (userId) {
         const monthly_limit = planToLimit(plan);
 
-        // ✅ current_period_end (trial end ili paid period end)
-        const current_period_end = unixToISO((sub as any).current_period_end);
+        const current_period_end = unixToISO(
+          typeof (sub as any).current_period_end === "number"
+            ? (sub as any).current_period_end
+            : null
+      );
+        const stripe_status = sub.status;
 
         const { error } = await supabaseAdmin
           .from("billing_profiles")
@@ -110,7 +113,7 @@ export async function POST(req: Request) {
               monthly_limit,
               stripe_customer_id: typeof sub.customer === "string" ? sub.customer : null,
               stripe_subscription_id: sub.id,
-              stripe_status: (sub as any).status, // "trialing" | "active" | "canceled" | ...
+              stripe_status,
               current_period_end,
             },
             { onConflict: "user_id" }
@@ -118,9 +121,7 @@ export async function POST(req: Request) {
 
         if (error) console.error("billing_profiles upsert (sub) error:", error);
       } else {
-        console.warn("No supabase_user_id in subscription.metadata", {
-          subId: sub.id,
-        });
+        console.warn("No supabase_user_id in subscription.metadata", { subId: sub.id });
       }
     }
 
