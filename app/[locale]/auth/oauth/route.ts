@@ -1,7 +1,7 @@
 // app/[locale]/auth/oauth/route.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
-import { createSupabaseServer } from "@/lib/supabase/server";
+import { createServerClient } from "@supabase/ssr";
 
 export const dynamic = "force-dynamic";
 
@@ -14,6 +14,26 @@ function getOrigin(req: NextRequest) {
   const host =
     req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "";
   return `${proto}://${host}`;
+}
+
+function supabaseRouteClient(req: NextRequest, res: NextResponse) {
+  return createServerClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    {
+      cookies: {
+        get(name: string) {
+          return req.cookies.get(name)?.value;
+        },
+        set(name: string, value: string, options: any) {
+          res.cookies.set({ name, value, ...options });
+        },
+        remove(name: string, options: any) {
+          res.cookies.set({ name, value: "", ...options, maxAge: 0 });
+        },
+      },
+    }
+  );
 }
 
 export async function GET(
@@ -34,9 +54,13 @@ export async function GET(
   const origin = getOrigin(req);
 
   // ✅ callback je u /[locale]/auth/callback
-  const redirectTo = `${origin}/${locale}/auth/callback?next=${encodeURIComponent(next)}`;
+  const redirectTo = `${origin}/${locale}/auth/callback?next=${encodeURIComponent(
+    next
+  )}`;
 
-  const supabase = await createSupabaseServer();
+  // ✅ Route-handler supabase client (cookie-aware)
+  const res = NextResponse.next();
+  const supabase = supabaseRouteClient(req, res);
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -50,5 +74,6 @@ export async function GET(
     );
   }
 
+  // ✅ redirect to Google
   return NextResponse.redirect(data.url);
 }
