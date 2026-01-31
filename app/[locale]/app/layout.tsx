@@ -18,6 +18,9 @@ export default async function AppLayout({
   } = await supabase.auth.getUser();
   if (!user) redirect(`/${locale}/login`);
 
+  console.log("[APP_LAYOUT_USER]", { hasUser: !!user, email: user?.email });
+
+
   return (
     <div className="grid gap-6 md:grid-cols-[260px_1fr]">
       {/* Sidebar */}
