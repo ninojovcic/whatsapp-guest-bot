@@ -1,4 +1,3 @@
-// app/[locale]/auth/oauth/route.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createServerClient } from "@supabase/ssr";
@@ -7,19 +6,16 @@ export const dynamic = "force-dynamic";
 
 const ALLOWED_PROVIDERS = new Set(["google"]);
 
-function getOrigin(req: NextRequest) {
-  const proto =
-    req.headers.get("x-forwarded-proto") ??
-    (req.nextUrl.protocol.replace(":", "") || "https");
-  const host =
-    req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "";
-  return `${proto}://${host}`;
+function requireEnv(name: string) {
+  const v = process.env[name];
+  if (!v) throw new Error(`Missing ${name}`);
+  return v;
 }
 
 function supabaseRouteClient(req: NextRequest, res: NextResponse) {
   return createServerClient(
-    process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!,
+    requireEnv("NEXT_PUBLIC_SUPABASE_URL"),
+    requireEnv("NEXT_PUBLIC_SUPABASE_ANON_KEY"),
     {
       cookies: {
         get(name: string) {
@@ -51,16 +47,17 @@ export async function GET(
   }
 
   const next = req.nextUrl.searchParams.get("next") || `/${locale}/app`;
-  const origin = getOrigin(req);
 
-  // ✅ callback
-  const redirectTo = `${origin}/${locale}/auth/callback?next=${encodeURIComponent(
-    next
-  )}`;
+  // ✅ CANONICAL ORIGIN (važan!)
+  const origin = requireEnv("NEXT_PUBLIC_SITE_URL").replace(/\/$/, "");
 
-  // ✅ IMPORTANT: response koji vraćamo mora biti isti onaj u koji Supabase upisuje cookies
-  // Napomena: URL ćemo postaviti nakon signInWithOAuth
-  const placeholder = NextResponse.redirect(new URL(`/${locale}/login`, origin));
+  const redirectTo = `${origin}/${locale}/auth/callback?next=${encodeURIComponent(next)}`;
+
+  // placeholder response za cookie set
+  const placeholder = NextResponse.redirect(new URL(`/${locale}/login?error=oauth_start`, origin), {
+    status: 303,
+  });
+
   const supabase = supabaseRouteClient(req, placeholder);
 
   const { data, error } = await supabase.auth.signInWithOAuth({
@@ -75,10 +72,8 @@ export async function GET(
     );
   }
 
-  // ✅ sad vratimo redirect response koji već ima cookies postavljene
-  const res = NextResponse.redirect(data.url);
-  // prekopiraj cookies iz placeholder response u stvarni redirect response
+  // ✅ vrati redirect i prenesi cookie header-e
+  const res = NextResponse.redirect(data.url, { status: 303 });
   placeholder.cookies.getAll().forEach((c) => res.cookies.set(c));
-
   return res;
 }
