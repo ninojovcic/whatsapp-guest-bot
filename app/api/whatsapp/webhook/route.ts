@@ -11,16 +11,20 @@ const supabase = createClient(
 );
 
 function wantsHuman(text: string) {
-  return /(human|host|owner|agent|call|čovjek|dom[ać]in|vlasnik|nazovi)/i.test(text);
+  return /(human|host|owner|agent|call|čovjek|dom[ać]in|vlasnik|nazovi)/i.test(
+    text
+  );
 }
 
 // IMPORTANT: keep this narrow; otherwise handoff triggers too often
 function isFallbackReply(reply: string) {
   const r = (reply || "").toLowerCase().trim();
   return (
-    r === "i don’t have that information. i’ll forward your question to the host." ||
+    r ===
+      "i don’t have that information. i’ll forward your question to the host." ||
     r === "i don't have that information. i'll forward your question to the host." ||
-    r === "nažalost, nemam tu informaciju. mogu proslijediti pitanje domaćinu." ||
+    r ===
+      "nažalost, nemam tu informaciju. mogu proslijediti pitanje domaćinu." ||
     r === "nazalost, nemam tu informaciju. mogu proslijediti pitanje domacinu."
   );
 }
@@ -28,7 +32,10 @@ function isFallbackReply(reply: string) {
 function detectGuestLang(text: string): "hr" | "en" {
   const t = (text || "").toLowerCase();
   if (/[čćžšđ]/i.test(text)) return "hr";
-  if (/(molim|hvala|gdje|kako|koliko|najbliž|pl[aá]ž|smještaj|domaćin)/i.test(t)) return "hr";
+  if (
+    /(molim|hvala|gdje|kako|koliko|najbliž|pl[aá]ž|smještaj|domaćin)/i.test(t)
+  )
+    return "hr";
   return "en";
 }
 
@@ -107,21 +114,43 @@ export async function POST(request: Request) {
   }
 
   // ✅ USAGE LIMITS (check + increment) — BEFORE OpenAI
-  // NOTE: ovdje userId = owner_id (limit po vlasniku/hostu)
+  // NOTE: userId = owner_id (limit po vlasniku/hostu)
   try {
     const usage = await checkAndIncrementUsage(supabase, property.owner_id, 1);
 
     if (!usage.allowed) {
+      // Differentiate reasons for nicer UX
+      if (usage.reason === "no_plan") {
+        const msg =
+          guestLang === "hr"
+            ? "Ovaj objekt trenutno nema aktivan plan ili trial. Molimo kontaktirajte domaćina."
+            : "This property currently has no active plan or trial. Please contact the host.";
+        return twimlMessage(msg);
+      }
+
+      // limit_reached (or fallback)
+      const limitText =
+        usage.limit && usage.limit > 0
+          ? `${usage.used}/${usage.limit}`
+          : guestLang === "hr"
+            ? "limit poruka"
+            : "message limit";
+
       const msg =
         guestLang === "hr"
-          ? `Ovaj objekt je dosegao mjesečni limit poruka (${usage.used}/${usage.limit}). Molimo kontaktirajte domaćina.`
-          : `This property has reached its monthly message limit (${usage.used}/${usage.limit}). Please contact the host.`;
+          ? `Ovaj objekt je dosegao mjesečni ${limitText}. Molimo kontaktirajte domaćina.`
+          : `This property has reached its monthly ${limitText}. Please contact the host.`;
 
       return twimlMessage(msg);
     }
   } catch (e) {
-    // Ako usage check padne, nemoj blokirati gosta — samo log
-    console.error("Usage check error:", e);
+    // ✅ Fail closed: ako usage check pukne, bolje blokirati nego davati free usage
+    console.error("Usage check error (blocking request):", e);
+    return twimlMessage(
+      guestLang === "hr"
+        ? "Trenutno ne mogu obraditi poruku (naplata/limit). Molimo kontaktirajte domaćina."
+        : "I can’t process this message right now (billing/limit). Please contact the host."
+    );
   }
 
   // Create safe system prompt

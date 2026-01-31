@@ -46,7 +46,7 @@ export async function ensureBillingProfile(
     .insert({
       user_id: userId,
       plan: null,
-      monthly_limit: null,
+      monthly_limit: 0, // ✅ bitno: 0 = blokirano, ne null
       stripe_customer_id: null,
       stripe_subscription_id: null,
       current_period_end: null,
@@ -105,7 +105,8 @@ export async function checkAndIncrementUsage(
 
   const used = Number(usageRow?.used ?? 0);
 
-  if (limit > 0 && used + incrementBy > limit) {
+  // ✅ KLJUČNO: ako je limit 0 → odmah blokiraj (0 nije unlimited)
+  if (used + incrementBy > limit) {
     return {
       allowed: false,
       used,
