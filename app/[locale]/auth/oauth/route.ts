@@ -1,3 +1,4 @@
+// app/[locale]/auth/oauth/route.ts
 import { NextResponse } from "next/server";
 import type { NextRequest } from "next/server";
 import { createSupabaseServer } from "@/lib/supabase/server";
@@ -30,12 +31,16 @@ export async function GET(
   }
 
   const next = req.nextUrl.searchParams.get("next") || `/${locale}/app`;
+  const debug = req.nextUrl.searchParams.get("debug") === "1";
 
-  // ✅ ključ: origin iz requesta (www ili ne-www, kako god user dođe)
   const origin = getOrigin(req);
 
-  // ✅ callback u istom originu
-  const redirectTo = `${origin}/${locale}/auth/callback?next=${encodeURIComponent(next)}`;
+  // ✅ callback je u /[locale]/auth/callback
+  // ✅ prenesi debug=1 do callbacka ako je traženo
+  const redirectTo =
+    `${origin}/${locale}/auth/callback` +
+    `?next=${encodeURIComponent(next)}` +
+    (debug ? `&debug=1` : "");
 
   const supabase = await createSupabaseServer();
 
@@ -44,20 +49,26 @@ export async function GET(
     options: { redirectTo },
   });
 
-  console.log("[OAUTH_START]", {
-    locale,
-    origin,
-    redirectTo,
-    next,
-    ok: !error && !!data?.url,
-    error: error?.message || null,
-  });
-
-  if (error || !data?.url) {
-    return NextResponse.redirect(new URL(`/${locale}/login?error=oauth`, origin), {
-      status: 303,
+  // Ako želiš odmah vidjeti JSON bez odlaska na Google (sanity check)
+  if (debug) {
+    return NextResponse.json({
+      step: "oauth_start",
+      origin,
+      redirectTo,
+      oauthUrl: data?.url || null,
+      next,
+      locale,
+      ok: !!data?.url && !error,
+      error: error?.message || null,
     });
   }
 
-  return NextResponse.redirect(data.url, { status: 303 });
+  if (error || !data?.url) {
+    return NextResponse.json(
+      { error: error?.message || "Failed to start OAuth" },
+      { status: 500 }
+    );
+  }
+
+  return NextResponse.redirect(data.url);
 }
