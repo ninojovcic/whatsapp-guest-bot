@@ -53,14 +53,15 @@ export async function GET(
   const next = req.nextUrl.searchParams.get("next") || `/${locale}/app`;
   const origin = getOrigin(req);
 
-  // ✅ callback je u /[locale]/auth/callback
+  // ✅ callback
   const redirectTo = `${origin}/${locale}/auth/callback?next=${encodeURIComponent(
     next
   )}`;
 
-  // ✅ Route-handler supabase client (cookie-aware)
-  const res = NextResponse.next();
-  const supabase = supabaseRouteClient(req, res);
+  // ✅ IMPORTANT: response koji vraćamo mora biti isti onaj u koji Supabase upisuje cookies
+  // Napomena: URL ćemo postaviti nakon signInWithOAuth
+  const placeholder = NextResponse.redirect(new URL(`/${locale}/login`, origin));
+  const supabase = supabaseRouteClient(req, placeholder);
 
   const { data, error } = await supabase.auth.signInWithOAuth({
     provider: "google",
@@ -74,6 +75,10 @@ export async function GET(
     );
   }
 
-  // ✅ redirect to Google
-  return NextResponse.redirect(data.url);
+  // ✅ sad vratimo redirect response koji već ima cookies postavljene
+  const res = NextResponse.redirect(data.url);
+  // prekopiraj cookies iz placeholder response u stvarni redirect response
+  placeholder.cookies.getAll().forEach((c) => res.cookies.set(c));
+
+  return res;
 }

@@ -4,6 +4,15 @@ import { createServerClient } from "@supabase/ssr";
 
 export const dynamic = "force-dynamic";
 
+function getOrigin(req: NextRequest) {
+  const proto =
+    req.headers.get("x-forwarded-proto") ??
+    (req.nextUrl.protocol.replace(":", "") || "https");
+  const host =
+    req.headers.get("x-forwarded-host") ?? req.headers.get("host") ?? "";
+  return `${proto}://${host}`;
+}
+
 function supabaseRouteClient(req: NextRequest, res: NextResponse) {
   return createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
@@ -27,28 +36,27 @@ function supabaseRouteClient(req: NextRequest, res: NextResponse) {
 export async function GET(
   req: NextRequest,
   context: { params: Promise<{ locale: string }> }
-) {
+): Promise<Response> {
   const { locale } = await context.params;
 
   const code = req.nextUrl.searchParams.get("code");
   const next = req.nextUrl.searchParams.get("next") || `/${locale}/app`;
 
-  // pripremi response unaprijed (da u njega možemo upisati cookie)
-  const redirectUrl = new URL(next, req.nextUrl.origin);
-  const res = NextResponse.redirect(redirectUrl);
+  const origin = getOrigin(req);
 
   if (!code) {
-    return NextResponse.redirect(new URL(`/${locale}/login?error=oauth`, req.nextUrl.origin));
+    return NextResponse.redirect(new URL(`/${locale}/login?error=oauth`, origin));
   }
 
+  // ✅ response u koji će Supabase zapisati session cookie
+  const res = NextResponse.redirect(new URL(next, origin));
   const supabase = supabaseRouteClient(req, res);
 
   const { error } = await supabase.auth.exchangeCodeForSession(code);
 
   if (error) {
-    return NextResponse.redirect(new URL(`/${locale}/login?error=oauth`, req.nextUrl.origin));
+    return NextResponse.redirect(new URL(`/${locale}/login?error=oauth`, origin));
   }
 
-  // ✅ res sada sadrži set-cookie headers
   return res;
 }
